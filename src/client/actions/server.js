@@ -3,3 +3,9 @@ export const ping = () => {
     type: 'server/ping'
   }
 }
+
+export const register = (name) => {
+  return {
+    type: `server/${name}`
+  }
+}

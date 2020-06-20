@@ -19,6 +19,7 @@ describe('Fake server test', function(){
   it('should pong', function(done){
     const initialState = {}
     const socket = io(params.server.url)
+    // console.log(socket)
     const store =  configureStore(rootReducer, socket, initialState, {
       'pong': () =>  done()
     })
