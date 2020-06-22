@@ -27,6 +27,35 @@ const initApp = (app, params, cb) => {
   })
 }
 
+/*
+playeur structure = {
+  socketid: 'Oh19QzuCMEW0cTCYAAAB',
+  name: 'arthur',
+  roomid: 'room123',
+  board[20][10]: [...],
+  curentpiece: 3
+}
+*/
+
+/*
+room structure = {
+  roomid: 'room123',
+  playeurs: ['Oh19QzuCMEW0cTCYAAAB'],
+  state: WAIT_PLAYEUR,
+  lstpieces[20]: [62,41,23,00,12,...]
+}
+*/
+
+/*
+all states
+WAIT_PLAYEUR
+INIT_GAME
+IN_GAME
+GAME_OVER
+*/
+
+let playeurLst = []
+
 const initEngine = io => {
   io.on('connection', function(socket){
     loginfo("Socket connected: " + socket.id)
@@ -42,6 +71,9 @@ const initEngine = io => {
       if(register.type === 'server/vlay'){
         socket.emit('register', {type: '1'})
       }
+    })
+    socket.on('actnewplayer', () => {
+
     })
   })
 }
