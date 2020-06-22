@@ -4,8 +4,9 @@ export const ping = () => {
   }
 }
 
-export const register = (name) => {
+export const register = (room, name) => {
   return {
-    type: `server/${name}`
+    room: room,
+    player_name: name
   }
 }

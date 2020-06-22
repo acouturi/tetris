@@ -1,5 +1,6 @@
 import fs  from 'fs'
 import debug from 'debug'
+import Game from './classes/game'
 
 const logerror = debug('tetris:error')
   , loginfo = debug('tetris:info')
@@ -27,20 +28,22 @@ const initApp = (app, params, cb) => {
   })
 }
 
+
+
 /*
-playeur structure = {
+player structure = {
   socketid: 'Oh19QzuCMEW0cTCYAAAB',
   name: 'arthur',
-  roomid: 'room123',
   board[20][10]: [...],
   curentpiece: 3
 }
 */
 
 /*
+generatedtoken = token qui identifie une session de jeu
+
 room structure = {
-  roomid: 'room123',
-  playeurs: ['Oh19QzuCMEW0cTCYAAAB'],
+  playeurs: [*player], (key; generated token, value: struct player)
   state: WAIT_PLAYEUR,
   lstpieces[20]: [62,41,23,00,12,...]
 }
@@ -48,13 +51,13 @@ room structure = {
 
 /*
 all states
-WAIT_PLAYEUR
+WAIT_PLAYER
 INIT_GAME
 IN_GAME
 GAME_OVER
 */
 
-let playeurLst = []
+let mapGame = {}
 
 const initEngine = io => {
   io.on('connection', function(socket){
@@ -67,13 +70,25 @@ const initEngine = io => {
       }
     })
     socket.on('register', (register) => {
+      //si player id exist
+        // return error
+      //si newroom exist
+        //join room
+      //else
+        //creat room
       console.log(register)
-      if(register.type === 'server/vlay'){
-        socket.emit('register', {type: '1'})
+      register.socket = socket.id
+      socket.emit('register', register)
+      console.log(mapGame)
+      if (!mapGame[register.room]) {
+        mapGame[register.room] = new Game()
+        socket.on(`room#${register.room}`, (action) => {
+          console.log('action:', action)
+          mapGame[register.room].init()
+          console.log(mapGame[register.room])
+          socket.emit(`room#${register.room}`, action)
+        })
       }
-    })
-    socket.on('actnewplayer', () => {
-
     })
   })
 }

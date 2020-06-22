@@ -1,4 +1,4 @@
-import { SOCKET_REQUEST, SOCKET_SUCCESS, SOCKET_FAILURE } from '../actions/alert'
+import { SOCKET_REQUEST, SOCKET_SUCCESS, SOCKET_FAILURE } from '../actions/socket'
 
 const socket_reducer = (state = {} , action) => {
   switch(action.type){

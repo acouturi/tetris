@@ -33,4 +33,4 @@ ReactDom.render((
 ), document.getElementById('tetris'))
 
 console.log('toto')
-store.dispatch(socketSuccess("ok"))
+store.dispatch(socketSuccess(io(params.server.url)))
