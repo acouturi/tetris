@@ -1,6 +1,8 @@
 import fs  from 'fs'
 import debug from 'debug'
+import { generatetoken } from './helpers'
 import Game from './classes/game'
+import Piece from './classes/piece'
 
 const logerror = debug('tetris:error')
   , loginfo = debug('tetris:info')
@@ -59,6 +61,11 @@ GAME_OVER
 
 let mapGame = {}
 
+var reponsetest= {
+  token:'abcde',
+  players:'wip'
+}
+
 const initEngine = io => {
   io.on('connection', function(socket){
     loginfo("Socket connected: " + socket.id)
@@ -78,7 +85,8 @@ const initEngine = io => {
         //creat room
       console.log(register)
       register.socket = socket.id
-      socket.emit('register', register)
+      let token = 'abcde'//generatetoken()
+      socket.emit('register', { token: token, nb_player: 0 } )
       console.log(mapGame)
       if (!mapGame[register.room]) {
         mapGame[register.room] = new Game()

@@ -1,6 +1,4 @@
-function getRandomInt(max) {
-    return Math.floor(Math.random() * Math.floor(max));
-}
+import { getRandomInt } from "../helpers";
 
 export default class Piece {
     constructor(form=getRandomInt(7), rotation=getRandomInt(4), position={x: 5, y: 0}, color=Math.random()*360) {

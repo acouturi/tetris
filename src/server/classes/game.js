@@ -2,6 +2,8 @@ import _ from 'lodash'
 import piece from './piece'
 import Piece from './piece'
 
+const PIECES_BUFFER = 10
+
 let WAIT_PLAYERS = 'WAIT_PLAYERS'
 let INIT_GAME = 'INIT_GAME'
 let IN_GAME = 'IN_GAME'
@@ -18,7 +20,7 @@ export default class Game {
         // Change game state
         this.state = INIT_GAME
         // generate pieces
-        this.pieces = _.map(new Array(10), (x) => new Piece())
+        this.pieces = _.map(new Array(PIECES_BUFFER), (x) => new Piece())
         this.timeleft = 5
     }
 }
