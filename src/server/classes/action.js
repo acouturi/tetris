@@ -16,3 +16,11 @@ export class ActionServer {
         this.players = players
     }
 }
+
+export class ServerCommand {
+    // JSON Du server vers le client
+    constructor(command, data) {
+        this.command = command
+        this.data = data
+    }
+}
