@@ -1,26 +1,29 @@
 import _ from 'lodash'
 import piece from './piece'
 import Piece from './piece'
+import * as help from '../helpers'
 
 const PIECES_BUFFER = 10
 
-let WAIT_PLAYERS = 'WAIT_PLAYERS'
-let INIT_GAME = 'INIT_GAME'
-let IN_GAME = 'IN_GAME'
-let GAME_OVER = 'GAME_OVER'
+
 
 export default class Game {
-    constructor(player) {
-        this.players = {1 : player}
-        this.state = WAIT_PLAYERS
+    constructor(tocken, player) {
+        this.players = {}
+        this.players[tocken] = player
+        this.state = help.WAIT_PLAYERS
         this.pieces = []
     }
 
     init() {
         // Change game state
-        this.state = INIT_GAME
+        this.state = help.INIT_GAME
         // generate pieces
         this.pieces = _.map(new Array(PIECES_BUFFER), (x) => new Piece())
         this.timeleft = 5
+    }
+
+    addplayer(tocken, player) {
+        this.players[tocken] = player
     }
 }
