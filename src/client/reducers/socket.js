@@ -1,6 +1,6 @@
 import { SOCKET_REQUEST, SOCKET_SUCCESS, SOCKET_FAILURE } from '../actions/socket'
 
-const socket_reducer = (state = {} , action) => {
+export const socket_reducer = (state = {} , action) => {
   switch(action.type){
     case SOCKET_SUCCESS:
       return { socket: action.socket }
@@ -8,6 +8,3 @@ const socket_reducer = (state = {} , action) => {
       return state
   }
 }
-
-export default socket_reducer
-

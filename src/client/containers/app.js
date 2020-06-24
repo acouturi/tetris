@@ -43,7 +43,7 @@ function maincode(socket){
 
 const mapStateToProps = (state) => {
   return {
-    socket: state.socket,
+    socket: state.socket_reducer.socket,
   }
 }
 export default connect(mapStateToProps, null)(App)
