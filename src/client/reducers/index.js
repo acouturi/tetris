@@ -1,7 +1,12 @@
-import alert from './alert'
-import socket from './socket'
+import { alert_reducer } from './alert'
+import { socket_reducer } from './socket'
+import { combineReducers } from 'redux'
 // export default alert
-export default socket
+
+export default combineReducers({
+    socket_reducer,
+    alert_reducer,
+})
 
 
 

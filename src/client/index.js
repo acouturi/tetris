@@ -5,7 +5,7 @@ import thunk from 'redux-thunk'
 import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'                                                                                                                                                    
 import {storeStateMiddleWare} from './middleware/storeStateMiddleWare'
-import socket_reducer from './reducers'
+import reducer from './reducers'
 import App from './containers/app'
 import {alert} from './actions/alert'
 import {socketConnect, socketRequest, socketSuccess} from './actions/socket'
@@ -18,7 +18,7 @@ import params from '../../params'
 const initialState = {}
 
 const store = createStore(
-	socket_reducer,
+	reducer,
 	initialState,
 	applyMiddleware(thunk, createLogger())
 )        
