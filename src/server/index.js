@@ -96,12 +96,13 @@ const initEngine = io => {
 
       let nb_player = 0
       let roomName = register.room
+      console.log(roomName)
       if (!mapGame[roomName]) {
         let curentroom = new Game(token,newplayer)
         mapGame[roomName] = curentroom 
         loginfo("creat the room " + roomName)
 
-        socket.on(`room#${roomName}`, (action) => console.log(action)) ///gamePlayerEvent(io, socket, action, curentroom)
+        socket.on(`room#${roomName}`, (action) => gamePlayerEvent(io, socket, action, curentroom, roomName, token)) ///gamePlayerEvent(io, socket, action, curentroom)
       }
       else {
         if (mapGame[roomName].state == help.WAIT_PLAYERS)
@@ -114,8 +115,9 @@ const initEngine = io => {
   })
 }
 
-function gamePlayerEvent(io, socket, action, curentroom) {
-  let player = curentroom.players[socket.id]
+function gamePlayerEvent(io, socket, action, curentroom, roomName, token) {
+  let player = curentroom.players[token]
+  console.log(action,curentroom.players,socket.id)
   // console.log(player)
   // return;
   switch (action.command) {

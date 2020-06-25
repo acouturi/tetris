@@ -11,7 +11,6 @@ export default class Piece {
     }
 
     rotate() {
-        this.rotation++
-        this.rotation%=4
+        this.rotation = (this.rotation + 1) % 4
     }
 }
