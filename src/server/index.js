@@ -101,11 +101,7 @@ const initEngine = io => {
         mapGame[roomName] = curentroom 
         loginfo("creat the room " + roomName)
 
-<<<<<<< HEAD
-        socket.on(`room#${roomName}`, (action) => console.log(action))
-=======
         socket.on(`room#${roomName}`, (action) => console.log(action)) ///gamePlayerEvent(io, socket, action, curentroom)
->>>>>>> event player et server
       }
       else {
         if (mapGame[roomName].state == help.WAIT_PLAYERS)
