@@ -99,9 +99,8 @@ const initEngine = io => {
       console.log(roomName)
       if (!mapGame[roomName]) {
         let curentroom = new Game(token,newplayer)
-        mapGame[roomName] = curentroom 
+        mapGame[roomName] = curentroom
         loginfo("creat the room " + roomName)
-
         socket.on(`room#${roomName}`, (action) => gamePlayerEvent(io, socket, action, curentroom, roomName, token)) ///gamePlayerEvent(io, socket, action, curentroom)
       }
       else {
@@ -117,7 +116,7 @@ const initEngine = io => {
 
 function gamePlayerEvent(io, socket, action, curentroom, roomName, token) {
   let player = curentroom.players[token]
-  console.log(action,curentroom.players,socket.id)
+  console.log(action)
   // console.log(player)
   // return;
   switch (action.command) {
@@ -172,12 +171,12 @@ function gamePlayerEvent(io, socket, action, curentroom, roomName, token) {
     case cmd.START:
       if (curentroom.state == help.WAIT_PLAYERS) {
         if (Object.values(curentroom.players)[0].socketid == socket.id) {
+          curentroom.state = help.INIT_GAME
           loginfo("initialisation of the room " + roomName)
           curentroom.init()
           // socket.emit(`room#${roomName}`, action)
           // io.emit(`room#${roomName}`, {command:cmd.WAITING_TO_START,data:0})
-          game.state = help.INIT_GAME
-          gameEvent(io, game, cmd.START_TIMER, null)
+          gameEvent(io, curentroom, cmd.START_TIMER, roomName, null)
         }
       }
       break;
@@ -188,7 +187,7 @@ function gamePlayerEvent(io, socket, action, curentroom, roomName, token) {
   }
 }
 
-function gameEvent(io, game, command, data) {
+function gameEvent(io, game, command, roomName, data) {
   switch (command) {
     case cmd.START_TIMER:
       let waitTimer = setInterval(() => {
@@ -199,11 +198,12 @@ function gameEvent(io, game, command, data) {
           clearInterval(waitTimer)
           let allPlayers = Object.values(game.players)
           for (let i = 0; i < allPlayers.length; i++) {
+            console.log(game.pieces,'ici')
             allPlayers[i].init(game.pieces[0]);
           }
           game.state = help.IN_GAME
         }
-      },1000)
+      },100)
       break;
   
     case cmd.START_GAME:

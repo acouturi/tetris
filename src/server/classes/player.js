@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import * as help from '../helpers'
-import pieces from '../helpers/pieces'
+import {pieces} from '../helpers/pieces'
+import Piece from './piece'
 
 export default class Player {
     constructor(name, socketid) {
@@ -14,8 +15,10 @@ export default class Player {
       this.board = _.map(new Array(20), () => _.map(new Array(10), () => {return -1} ))
       this.index = 1
       this.state = help.PLAYER_ALIVE
-      this.currentPiece = JSON.parse(JSON.stringify(newpiece))
-      refreshScreen()
+      this.currentPiece = Object.assign( Object.create( Object.getPrototypeOf(newpiece)), newpiece)
+      // this.currentPiece = JSON.parse(JSON.stringify(newpiece))
+      console.log(newpiece)
+      this.refreshScreen()
     }
 
     restart() {
@@ -27,7 +30,7 @@ export default class Player {
       
     refreshScreen() {
       // calque sur lequel on a la piece qui bouge
-      let screen = JSON.parse(JSON.stringify(board))
+      let screen = JSON.parse(JSON.stringify(this.board))
       let currentPiece = this.currentPiece
       const thisPiece = pieces[currentPiece.form][currentPiece.rotation]
       for (let x = 0; x < thisPiece.length; x++) {
@@ -52,7 +55,7 @@ export default class Player {
       const thisPiece = pieces[currentPiece.form][currentPiece.rotation]
       if (thisPiece.length + currentPiece.position.y < this.board[0].length){
         currentPiece.position.y++
-        refreshScreen()
+        this.refreshScreen()
       }
     }
 
@@ -61,46 +64,50 @@ export default class Player {
       const thisPiece = pieces[currentPiece.form][currentPiece.rotation]
       if (thisPiece.length + currentPiece.position.y < this.board[0].length){
         currentPiece.position.y--
-        refreshScreen()
+        this.refreshScreen()
       }
     }
 
     shiftDown() {
       this.currentPiece.position.x++
-      refreshScreen()
+      this.refreshScreen()
       return JSON.stringify(this.board) == JSON.stringify(this.screen)
     }
 
     shiftFall() {
       this.currentPiece.position.x++
-      refreshScreen()
+      this.refreshScreen()
       while (JSON.stringify(this.board) == JSON.stringify(this.screen)) {
         this.currentPiece.position.x++
-        refreshScreen()
+        this.refreshScreen()
       }
     }
 
     rotatePiece() {
       this.currentPiece.rotate()
       this.currentPiece.position.x--
-      refreshScreen()
-      while (JSON.stringify(this.board) == JSON.stringify(this.screen)) {
-        this.currentPiece.position.x--
-        refreshScreen()
-      }
+      this.refreshScreen()
+      // while (JSON.stringify(this.board) == JSON.stringify(this.screen)) {
+      //   this.currentPiece.position.x--
+      //   this.refreshScreen()
+      // }
     }
 
     newPiece(newpiece) {
+      console.log('add',newpiece)
       this.index++
       this.board = this.screen
+      this.currentPiece = Object.assign( Object.create( Object.getPrototypeOf(newpiece)), newpiece)
+
       // this.board = JSON.parse(JSON.stringify(this.screen))
-      this.currentPiece = JSON.parse(JSON.stringify(newpiece))
-      refreshScreen()
-      if (JSON.stringify(this.board) != JSON.stringify(this.screen)) {
-        fillBadLine()
-        return (JSON.stringify(this.board) != JSON.stringify(this.screen))
-      }
-      return false
+      // this.currentPiece = JSON.parse(JSON.stringify(newpiece))
+      console.log('add',this.currentPiece)
+      this.refreshScreen()
+      // if (JSON.stringify(this.board) != JSON.stringify(this.screen)) {
+      //   //fillBadLine()
+      //   return (JSON.stringify(this.board) != JSON.stringify(this.screen))
+      // }
+      // return false
       ////test if player dead
     }
 
@@ -108,7 +115,7 @@ export default class Player {
       while (this.waitLines--) {
         let firstLine = this.board.shift()
         this.board.push(_.map(new Array(10), () => {return -2} ))
-        refreshScreen()
+        this.refreshScreen()
       }
     }
 }

@@ -37,6 +37,7 @@ const App = ({socket}) => {
         console.log({token, command: cmd.START})
         socket.emit(`room#${room_name}`, {token, command: cmd.START})
       }}>START</button>
+      <textarea id='tmpScreen'></textarea>
       <script> {maincode(socket)}</script>
     </div>
   )
@@ -48,7 +49,11 @@ function maincode(socket){
   socket.emit('register', register(room_name, player_name))
   console.log("mainSocket socket:", socket)
   socket.on('register', (msg) => ({token, nb_player} = msg))
-  socket.on(`room#${room_name}`, (msg) => console.log(`[REPONSE] room#${room_name}`, msg))
+  socket.on(`room#${room_name}`, (msg) => {
+    console.log(`[REPONSE] room#${room_name}`, msg)
+    if (msg.command == "REFRESH_PLAYER")
+      document.getElementById('tmpScreen').value = JSON.stringify(msg.data.screen).replace(/],/g,'\n').replace(/\[/g,'').replace(']]','')
+  })
 
   // Ecoute les key pressed et les envoies au back
   document.addEventListener('keyup', (key) => {

@@ -18,11 +18,19 @@ export default class Game {
     this.state = help.WAIT_PLAYERS
   }
 
-  testpieces(index) {
+  log(msg) {
+    console.log('on est ici',msg)
+  }
+
+  addNewPiece() {
+    this.pieces.push(new Piece())
+  }
+
+  testPieces(index) {
     while (index + PIECES_BUFFER > pieces.length){
       if (this.timespeed > MIN_SPEED)
         this.timespeed -= STEP_SPEED
-      addNewPiece()
+      this.addNewPiece()
     }
   }
 
@@ -34,7 +42,7 @@ export default class Game {
     this.timespeed = DEFAULT_SPEED
     this.state = help.INIT_GAME
     // generate pieces
-    this.pieces = _.map(new Array(PIECES_BUFFER), addNewPiece())
+    this.pieces = _.map(new Array(PIECES_BUFFER), () => new Piece())
     this.timeleft = 5
   }
 
@@ -51,10 +59,6 @@ export default class Game {
       player.restart()
     }
     this.pieces = []
-  }
-
-  addNewPiece() {
-    this.pieces.push(new Piece())
   }
 
   addplayer(tocken, player) {
