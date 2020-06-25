@@ -27,6 +27,7 @@ export default class Game {
   }
 
   init() {
+    this.badLines = 0
     this.playerAlive = this.players.length
     clearInterval(this.internalClockEvent)
     this.internalClockEvent = null
