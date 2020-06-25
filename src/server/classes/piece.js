@@ -8,4 +8,9 @@ export default class Piece {
         this.position = position
         this.color = color
     }
+
+    rotate() {
+        this.rotation++
+        this.rotation%=4
+    }
 }
