@@ -96,70 +96,147 @@ const initEngine = io => {
 
       let nb_player = 0
       let roomName = register.room
+      console.log(roomName)
       if (!mapGame[roomName]) {
-        mapGame[roomName] = new Game(token,newplayer)
+        let curentroom = new Game(token,newplayer)
+        mapGame[roomName] = curentroom 
         loginfo("creat the room " + roomName)
 
-        socket.on(`room#${roomName}`, (action) => console.log(action))
+        socket.on(`room#${roomName}`, (action) => gamePlayerEvent(io, socket, action, curentroom, roomName, token)) ///gamePlayerEvent(io, socket, action, curentroom)
       }
       else {
         if (mapGame[roomName].state == help.WAIT_PLAYERS)
           mapGame[roomName].addplayer(token,newplayer)
+        else
+          {}//add in spectator mod
       }
       socket.emit('register', { token: token, nb_player: nb_player } )
       })
   })
 }
 
-function gameEvent(socket, action, roomName) {
+function gamePlayerEvent(io, socket, action, curentroom, roomName, token) {
+  let player = curentroom.players[token]
+  console.log(action,curentroom.players,socket.id)
+  // console.log(player)
+  // return;
   switch (action.command) {
     case cmd.RIGHT:
-      if (mapGame[roomName].state == help.IN_GAME ) {
-
-      }
+      if (curentroom.state == help.IN_GAME)
+        player.shiftRight()
+      io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
       break;
     case cmd.LEFT:
-      
-      break;
-    case cmd.DOWN:
-      
+      if (curentroom.state == help.IN_GAME)
+        player.shiftLeft()
+      io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
       break;
     case cmd.ROTATE:
-      
+      if (curentroom.state == help.IN_GAME)
+        player.rotatePiece()
+    case cmd.DOWN:
+      if (curentroom.state == help.IN_GAME) {
+        if (player.shiftDown()) {
+          if (!player.newPiece(curentroom.pieces[player.index]))
+            {} //// kill the player
+          curentroom.testPieces(player.index)
+          let nbline = 0;
+          //// test remove line gameEvent(io, game, cmd.ADD_LINE, {socketid:socket,nbline:nbline})
+        }
+      }
+      io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
       break;
     case cmd.FALL:
-      
+      if (curentroom.state == help.IN_GAME) {
+        player.shiftFall()
+        if (!player.newPiece(curentroom.pieces[player.index]))
+          {} //// kill the player
+        curentroom.testPieces(player.index)
+        let nbline = 0;
+        //// test remove line gameEvent(io, game, cmd.ADD_LINE, {socketid:socket,nbline:nbline})
+      }
+      io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
       break;
     case cmd.PAUSE:
-      
+      if (Object.values(curentroom.players)[0].socketid == socket.id) {
+        if (curentroom.state == help.IN_PAUSE) {
+          io.emit(`room#${roomName}`, {command:cmd.END_PAUSE,data:null})
+          curentroom.state = help.IN_GAME
+        }
+        else if (curentroom.state == help.IN_GAME) {
+          io.emit(`room#${roomName}`, {command:cmd.START_PAUSE,data:null})
+          curentroom.state = help.IN_PAUSE
+        }
+      }
       break;
     case cmd.START:
-      if (Object.values(mapGame[roomName].players)[0].socketid == socket.id) {
-        loginfo("initialisation of the room " + roomName)
-        mapGame[roomName].init()
-        // socket.emit(`room#${roomName}`, action)
-        socket.local.emit(`room#${roomName}`, {command:cmd.WAITING_TO_START,data:0})
-        startGame(mapGame[roomName])
+      if (curentroom.state == help.WAIT_PLAYERS) {
+        if (Object.values(curentroom.players)[0].socketid == socket.id) {
+          loginfo("initialisation of the room " + roomName)
+          curentroom.init()
+          // socket.emit(`room#${roomName}`, action)
+          // io.emit(`room#${roomName}`, {command:cmd.WAITING_TO_START,data:0})
+          game.state = help.INIT_GAME
+          gameEvent(io, game, cmd.START_TIMER, null)
+        }
       }
       break;
   
     default:
+      logerror('bad commande player',action.command, player)
       break;
   }
+}
 
-  function startGame(game) {
-    game.state = help.IN_GAME
-    let allPlayers = Object.values(game.players)
-    for (let i = 0; i < allPlayers.length; i++) {
-      allPlayers[i].init(game.pieces[0]);
-    }
+function gameEvent(io, game, command, data) {
+  switch (command) {
+    case cmd.START_TIMER:
+      let waitTimer = setInterval(() => {
+        //decrays time left to start
+        io.emit(`room#${roomName}`, {command:cmd.WAITING_TO_START,data:game.timeleft})
+        game.timeleft--
+        if (game.timeleft < 0){
+          clearInterval(waitTimer)
+          let allPlayers = Object.values(game.players)
+          for (let i = 0; i < allPlayers.length; i++) {
+            allPlayers[i].init(game.pieces[0]);
+          }
+          game.state = help.IN_GAME
+        }
+      },1000)
+      break;
+  
+    case cmd.START_GAME:
+      game.internalClockEvent = gameClock(io, game, game.timespeed)
+      break;
+    case cmd.ADD_LINE: {
+        data.socket
+      }
+      break;
+    default:
+      logerror('bad game event', game, command)
+      break;
   }
+}
 
-  // console.log(cmd.START_PAUSE)
-  // console.log('action:', action)
-  // mapGame[roomName].init()
-  // console.log(mapGame[roomName])
-  // console.log(socket)
+function gameClock(io, game, time) {
+  setTimeout(() => {
+    if (game.state == help.IN_GAME) {
+      for (let index = 0; index < game.players.length; index++) {
+        const player = game.players[index];
+        if (player.state == help.PLAYER_ALIVE) {
+          if (player.shiftDown()) {
+            if (!player.newPiece(game.pieces[player.index]))
+              {} //// kill the player
+            game.testPieces(player.index)
+            let nbline = 0;
+            //// test remove line gameEvent(io, game, cmd.ADD_LINE, {socketid:socket,nbline:nbline})
+          }
+        }
+      } 
+      game.internalClockEvent = gameClock(io, game, game.timespeed)
+    }
+  }, time);
 }
 
 export function create(params){
