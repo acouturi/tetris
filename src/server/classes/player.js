@@ -10,6 +10,7 @@ export default class Player {
     }
 
     init(newpiece) {
+      this.waitLines = 0
       this.board = _.map(new Array(20), () => _.map(new Array(10), () => {return -1} ))
       this.index = 1
       this.state = help.PLAYER_ALIVE
@@ -95,6 +96,19 @@ export default class Player {
       // this.board = JSON.parse(JSON.stringify(this.screen))
       this.currentPiece = JSON.parse(JSON.stringify(newpiece))
       refreshScreen()
+      if (JSON.stringify(this.board) != JSON.stringify(this.screen)) {
+        fillBadLine()
+        return (JSON.stringify(this.board) != JSON.stringify(this.screen))
+      }
+      return false
       ////test if player dead
+    }
+
+    fillBadLine() {
+      while (this.waitLines--) {
+        let firstLine = this.board.shift()
+        this.board.push(_.map(new Array(10), () => {return -2} ))
+        refreshScreen()
+      }
     }
 }
