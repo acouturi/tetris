@@ -33,6 +33,10 @@ const App = ({socket}) => {
       <button onClick={() => {
         console.log("token nb_player:", token, nb_player)
       }}>token player</button>
+      <button onClick={() => {
+        console.log({token, command: cmd.START})
+        socket.emit(`room#${room_name}`, {token, command: cmd.START})
+      }}>START</button>
       <script> {maincode(socket)}</script>
     </div>
   )
