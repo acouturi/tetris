@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import * as help from '../helpers'
 import {pieces} from '../helpers/pieces'
-import Piece from './piece'
+import Pieces from './piece'
 
 export default class Player {
     constructor(name, socketid) {
@@ -16,7 +16,7 @@ export default class Player {
       this.index = 1
       this.state = help.PLAYER_ALIVE
       this.currentPiece = Object.assign( Object.create( Object.getPrototypeOf(newpiece)), newpiece)
-      this.nextPiece =JSON.parse(JSON.stringify(nextPiece))
+      this.nextPiece = JSON.parse(JSON.stringify(nextPiece))
       // this.currentPiece = JSON.parse(JSON.stringify(newpiece))
       // console.log(newpiece)
       this.refreshScreen()
@@ -37,9 +37,9 @@ export default class Player {
       for (let x = 0; x < thisPiece.length; x++) {
         for (let y = 0; y < thisPiece[x].length; y++) {
           if (thisPiece[x][y] == 1) {
-            if (screen[x + currentPiece.position.x] && screen[x + currentPiece.position.x][y + currentPiece.position.y]) {
-              if (screen[x + currentPiece.position.x][y + currentPiece.position.y] == -1)
-                screen[x + currentPiece.position.x][y + currentPiece.position.y] = currentPiece.color
+            if (screen[x + currentPiece.positionx] && screen[x + currentPiece.positionx][y + currentPiece.positiony]) {
+              if (screen[x + currentPiece.positionx][y + currentPiece.positiony] == -1)
+                screen[x + currentPiece.positionx][y + currentPiece.positiony] = currentPiece.color
               else {
                 console.error('error 1', 'le pixel est deja rempli')
                 return false
@@ -59,9 +59,9 @@ export default class Player {
     shiftRight() {
       let currentPiece = this.currentPiece
       const thisPiece = pieces[currentPiece.form][currentPiece.rotation]
-      currentPiece.position.y++
+      currentPiece.positiony++
       if (!this.refreshScreen()) {
-        currentPiece.position.y--
+        currentPiece.positiony--
         this.refreshScreen()
       }
     }
@@ -69,17 +69,17 @@ export default class Player {
     shiftLeft() {
       let currentPiece = this.currentPiece
       const thisPiece = pieces[currentPiece.form][currentPiece.rotation]
-      currentPiece.position.y--
+      currentPiece.positiony--
       if (!this.refreshScreen()) {
-        currentPiece.position.y++
+        currentPiece.positiony++
         this.refreshScreen()
       }
     }
 
     shiftDown() {
-      this.currentPiece.position.x++
+      this.currentPiece.positionx++
       if (!this.refreshScreen()) {
-        this.currentPiece.position.x--
+        this.currentPiece.positionx--
         this.refreshScreen()
         return false
       }
@@ -87,23 +87,32 @@ export default class Player {
     }
 
     shiftFall() {
-      this.currentPiece.position.x++
+      this.currentPiece.positionx++
       while (this.refreshScreen()) {
-        this.currentPiece.position.x++
+        this.currentPiece.positionx++
       }
-      this.currentPiece.position.x--
+      this.currentPiece.positionx--
       this.refreshScreen()
       return false
     }
 
     rotatePiece() {
       this.currentPiece.rotate()
-      // this.currentPiece.position.x--
-      this.refreshScreen()
-      // while (JSON.stringify(this.board) == JSON.stringify(this.screen)) {
-      //   this.currentPiece.position.x--
-      //   this.refreshScreen()
-      // }
+      let ok = this.refreshScreen()
+      let tmp = ok
+      while (!ok) {
+        if(this.currentPiece.positiony < 0)
+          this.currentPiece.positiony++
+        if(this.currentPiece.positionx < 0)
+          this.currentPiece.positionx++
+        if(this.currentPiece.positiony + pieces[this.currentPiece.form][0].length > this.board[0].length)
+          this.currentPiece.positiony--
+        ok = this.refreshScreen()
+        tmp = ok
+        if (this.currentPiece.positionx > 0 && this.currentPiece.positiony > 0 && (this.currentPiece.positiony + pieces[this.currentPiece.form][0].length + 1) < this.board[0].length)
+          ok = true
+      }
+      return tmp
     }
 
     removeline() {
@@ -117,16 +126,12 @@ export default class Player {
             if (elem <= -1)
               break testelem
           }
-          console.log('full', x)
           removed++
           this.board.splice(x, 1);
           this.board.unshift(_.map(new Array(10), () => {return -1}))
         }
       }
-      console.log(removed)
-      let tmp = removed == 0 ? 0 : (removed - 1)
-      console.log(tmp)
-      return tmp
+      return removed == 0 ? 0 : (removed - 1)
     }
 
     addbadline() {
@@ -160,7 +165,6 @@ export default class Player {
       // this.board = JSON.parse(JSON.stringify(this.screen))
       // this.currentPiece = JSON.parse(JSON.stringify(newpiece))
       let ok = this.refreshScreen()
-      console.log(ok)
       return [ok, removeline]
       // if (JSON.stringify(this.board) != JSON.stringify(this.screen)) {
       //   //fillBadLine()

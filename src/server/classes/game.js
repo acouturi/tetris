@@ -32,13 +32,13 @@ export default class Game {
         this.timespeed -= STEP_SPEED
       this.addNewPiece()
     }
-    console.log(this.pieces[index])
     return this.pieces[index]
   }
 
   init() {
     this.badLines = 0
-    this.playerAlive = (Object.keys(this.players).length + 1)
+    let nbplayer = (Object.keys(this.players).length)
+    this.playerAlive = nbplayer == 1 ? 2 : nbplayer
     clearInterval(this.internalClockEvent)
     this.internalClockEvent = null
     this.timespeed = DEFAULT_SPEED
@@ -69,7 +69,7 @@ export default class Game {
   killplayer(token) {
     this.players[token].state = help.PLAYER_DEAD
     this.playerAlive--
-    console.log(this.players[token])
+    console.log("kill",this.players[token].name)
     console.log(this.playerAlive)
     if (this.playerAlive == 1)
       this.gameOver()
