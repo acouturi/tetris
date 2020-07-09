@@ -10,14 +10,15 @@ export default class Player {
       this.state = help.PLAYER_NEW
     }
 
-    init(newpiece) {
+    init(newpiece,nextPiece) {
       this.waitLines = 0
       this.board = _.map(new Array(20), () => _.map(new Array(10), () => {return -1} ))
       this.index = 1
       this.state = help.PLAYER_ALIVE
       this.currentPiece = Object.assign( Object.create( Object.getPrototypeOf(newpiece)), newpiece)
+      this.nextPiece =JSON.parse(JSON.stringify(nextPiece))
       // this.currentPiece = JSON.parse(JSON.stringify(newpiece))
-      console.log(newpiece)
+      // console.log(newpiece)
       this.refreshScreen()
     }
 
@@ -35,26 +36,32 @@ export default class Player {
       const thisPiece = pieces[currentPiece.form][currentPiece.rotation]
       for (let x = 0; x < thisPiece.length; x++) {
         for (let y = 0; y < thisPiece[x].length; y++) {
-          if (screen[x + currentPiece.position.x] && screen[x + currentPiece.position.x][y + currentPiece.position.y]) {
-            if (thisPiece[x][y] == 1) {
+          if (thisPiece[x][y] == 1) {
+            if (screen[x + currentPiece.position.x] && screen[x + currentPiece.position.x][y + currentPiece.position.y]) {
               if (screen[x + currentPiece.position.x][y + currentPiece.position.y] == -1)
                 screen[x + currentPiece.position.x][y + currentPiece.position.y] = currentPiece.color
-              else
+              else {
                 console.error('error 1', 'le pixel est deja rempli')
+                return false
+              }
+            }
+            else{
+              console.error('error 1', 'la piece est en a l\'exterieur du cadre')
+              return false
             }
           }
-          else
-            console.error('error 1', 'la piece est en a l\'exterieur du cadre')
         }
       }
       this.screen = screen
+      return true
     }
 
     shiftRight() {
       let currentPiece = this.currentPiece
       const thisPiece = pieces[currentPiece.form][currentPiece.rotation]
-      if (thisPiece.length + currentPiece.position.y < this.board[0].length){
-        currentPiece.position.y++
+      currentPiece.position.y++
+      if (!this.refreshScreen()) {
+        currentPiece.position.y--
         this.refreshScreen()
       }
     }
@@ -62,30 +69,36 @@ export default class Player {
     shiftLeft() {
       let currentPiece = this.currentPiece
       const thisPiece = pieces[currentPiece.form][currentPiece.rotation]
-      if (thisPiece.length + currentPiece.position.y < this.board[0].length){
-        currentPiece.position.y--
+      currentPiece.position.y--
+      if (!this.refreshScreen()) {
+        currentPiece.position.y++
         this.refreshScreen()
       }
     }
 
     shiftDown() {
       this.currentPiece.position.x++
-      this.refreshScreen()
-      return JSON.stringify(this.board) == JSON.stringify(this.screen)
+      if (!this.refreshScreen()) {
+        this.currentPiece.position.x--
+        this.refreshScreen()
+        return false
+      }
+      return true
     }
 
     shiftFall() {
       this.currentPiece.position.x++
-      this.refreshScreen()
-      while (JSON.stringify(this.board) == JSON.stringify(this.screen)) {
+      while (this.refreshScreen()) {
         this.currentPiece.position.x++
-        this.refreshScreen()
       }
+      this.currentPiece.position.x--
+      this.refreshScreen()
+      return false
     }
 
     rotatePiece() {
       this.currentPiece.rotate()
-      this.currentPiece.position.x--
+      // this.currentPiece.position.x--
       this.refreshScreen()
       // while (JSON.stringify(this.board) == JSON.stringify(this.screen)) {
       //   this.currentPiece.position.x--
@@ -93,16 +106,58 @@ export default class Player {
       // }
     }
 
-    newPiece(newpiece) {
-      console.log('add',newpiece)
+    removeline() {
+      let removed = 0
+      for (let x = 0; x < this.board.length; x++) {
+        let line = this.board[x];
+
+        testelem :{
+          for (let y = 0; y < line.length; y++) {
+            let elem = line[y];
+            if (elem <= -1)
+              break testelem
+          }
+          console.log('full', x)
+          removed++
+          this.board.splice(x, 1);
+          this.board.unshift(_.map(new Array(10), () => {return -1}))
+        }
+      }
+      return removed == 0 ? removed : removed - 1
+    }
+
+    addbadline() {
+      while (this.waitLines-- > 0) {
+        let line = this.board.shift()
+        this.board.push(_.map(new Array(10), () => {return -2}))
+        for (let x = 0; x < line.length; x++) {
+          const element = line[x];
+          if (element != -1) {
+            return true
+          }
+        }
+      }
+      return false
+    }
+
+    newPiece(newpiece,nextPiece) {
       this.index++
       this.board = this.screen
+
+      let removeline = this.removeline()
+      this.waitLines -= removeline
+
+      if (this.addbadline())
+        return [false, removeline]
+
       this.currentPiece = Object.assign( Object.create( Object.getPrototypeOf(newpiece)), newpiece)
+      this.nextPiece =JSON.parse(JSON.stringify(nextPiece))
 
       // this.board = JSON.parse(JSON.stringify(this.screen))
       // this.currentPiece = JSON.parse(JSON.stringify(newpiece))
-      console.log('add',this.currentPiece)
-      this.refreshScreen()
+      let ok = this.refreshScreen()
+      console.log(ok)
+      return [ok, removeline]
       // if (JSON.stringify(this.board) != JSON.stringify(this.screen)) {
       //   //fillBadLine()
       //   return (JSON.stringify(this.board) != JSON.stringify(this.screen))

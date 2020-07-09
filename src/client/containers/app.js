@@ -37,7 +37,7 @@ const App = ({socket}) => {
         console.log({token, command: cmd.START})
         socket.emit(`room#${room_name}`, {token, command: cmd.START})
       }}>START</button>
-      <textarea id='tmpScreen'></textarea>
+      <textarea id='tmpScreen' rows="30" cols="50"></textarea>
       <script> {maincode(socket)}</script>
     </div>
   )

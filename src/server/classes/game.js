@@ -11,9 +11,9 @@ const MIN_SPEED = 100
 const STEP_SPEED = 10
 
 export default class Game {
-  constructor(tocken, player) {
+  constructor(token, player) {
     this.players = {}
-    this.players[tocken] = player
+    this.players[token] = player
     this.internalClockEvent = null
     this.state = help.WAIT_PLAYERS
   }
@@ -26,17 +26,19 @@ export default class Game {
     this.pieces.push(new Piece())
   }
 
-  testPieces(index) {
-    while (index + PIECES_BUFFER > pieces.length){
+  getPieces(index) {
+    while (index + PIECES_BUFFER > this.pieces.length){
       if (this.timespeed > MIN_SPEED)
         this.timespeed -= STEP_SPEED
       this.addNewPiece()
     }
+    console.log(this.pieces[index])
+    return this.pieces[index]
   }
 
   init() {
     this.badLines = 0
-    this.playerAlive = this.players.length
+    this.playerAlive = (Object.keys(this.players).length + 1)
     clearInterval(this.internalClockEvent)
     this.internalClockEvent = null
     this.timespeed = DEFAULT_SPEED
@@ -47,6 +49,7 @@ export default class Game {
   }
 
   gameOver() {
+    clearInterval(this.internalClockEvent)
     this.state = help.GAME_OVER
     clearInterval(this.internalClockEvent)
     this.internalClockEvent = null
@@ -61,7 +64,29 @@ export default class Game {
     this.pieces = []
   }
 
-  addplayer(tocken, player) {
-    this.players[tocken] = player
+
+
+  killplayer(token) {
+    this.players[token].state = help.PLAYER_DEAD
+    this.playerAlive--
+    console.log(this.players[token])
+    console.log(this.playerAlive)
+    if (this.playerAlive == 1)
+      this.gameOver()
+  }
+
+  addplayer(token, player) {
+    this.players[token] = player
+  }
+
+  removeplayer(token) {
+    delete this.players[token]
+    if (Object.keys(this.players) == 0){
+      clearInterval(this.internalClockEvent)
+      return 1
+    }
+    else if(Object.keys(this.players) == 1)
+      this.gameOver()
+    return 0
   }
 }

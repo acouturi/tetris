@@ -81,12 +81,6 @@ const initEngine = io => {
   io.on('connection', function(socket){
     let socketid = socket.id
     loginfo("Socket connected: " + socketid)
-    // socket.on('action', (action) => {
-    //   console.log("received", action, socket)
-    //   if(action.type === 'server/ping'){
-    //     socket.emit('action', {type: 'pong'})
-    //   }
-    // })
     socket.on('register', (register) => {
       loginfo(socketid + " is now : " + register.player_name)
 
@@ -109,50 +103,55 @@ const initEngine = io => {
         else
           {}//add in spectator mod
       }
-      socket.emit('register', { token: token, nb_player: nb_player } )
+      socket.on('disconnect', ()=> {
+        loginfo(register.player_name, "ragequit", token)
+        if (mapGame[roomName].removeplayer(token)){
+          delete mapGame[roomName]
+        }
       })
+      socket.emit('register', { token: token, nb_player: nb_player } )
+    })
   })
 }
 
 function gamePlayerEvent(io, socket, action, curentroom, roomName, token) {
   let player = curentroom.players[token]
-  console.log(action)
+  console.log(action, player.name)
   // console.log(player)
   // return;
   switch (action.command) {
     case cmd.RIGHT:
-      if (curentroom.state == help.IN_GAME)
+      if (curentroom.state == help.IN_GAME && player.state == help.PLAYER_ALIVE)
         player.shiftRight()
       io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
       break;
     case cmd.LEFT:
-      if (curentroom.state == help.IN_GAME)
+      if (curentroom.state == help.IN_GAME && player.state == help.PLAYER_ALIVE)
         player.shiftLeft()
       io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
       break;
     case cmd.ROTATE:
-      if (curentroom.state == help.IN_GAME)
+      if (curentroom.state == help.IN_GAME && player.state == help.PLAYER_ALIVE)
         player.rotatePiece()
+      io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
+      break;
     case cmd.DOWN:
-      if (curentroom.state == help.IN_GAME) {
-        if (player.shiftDown()) {
-          if (!player.newPiece(curentroom.pieces[player.index]))
-            {} //// kill the player
-          curentroom.testPieces(player.index)
+    case cmd.FALL:    
+      if (curentroom.state == help.IN_GAME && player.state == help.PLAYER_ALIVE) {
+        let ok = action.command == cmd.DOWN ? player.shiftDown() : player.shiftFall()
+        if (!ok) {
+          ok = player.newPiece(curentroom.getPieces(player.index),curentroom.getPieces(player.index + 1))
+          console.log(ok)
+          if (ok[1]) {
+              gameEvent(null, curentroom, cmd.ADD_LINE, null, ok[1])
+          }
+          if (!ok[0]) {
+            curentroom.killplayer(token)
+            loginfo(player.name, "is dead", token)
+          } //// kill the player
           let nbline = 0;
           //// test remove line gameEvent(io, game, cmd.ADD_LINE, {socketid:socket,nbline:nbline})
         }
-      }
-      io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
-      break;
-    case cmd.FALL:
-      if (curentroom.state == help.IN_GAME) {
-        player.shiftFall()
-        if (!player.newPiece(curentroom.pieces[player.index]))
-          {} //// kill the player
-        curentroom.testPieces(player.index)
-        let nbline = 0;
-        //// test remove line gameEvent(io, game, cmd.ADD_LINE, {socketid:socket,nbline:nbline})
       }
       io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
       break;
@@ -169,7 +168,7 @@ function gamePlayerEvent(io, socket, action, curentroom, roomName, token) {
       }
       break;
     case cmd.START:
-      if (curentroom.state == help.WAIT_PLAYERS) {
+      if (curentroom.state == help.WAIT_PLAYERS || curentroom.state == help.GAME_OVER) {
         if (Object.values(curentroom.players)[0].socketid == socket.id) {
           curentroom.state = help.INIT_GAME
           loginfo("initialisation of the room " + roomName)
@@ -190,28 +189,37 @@ function gamePlayerEvent(io, socket, action, curentroom, roomName, token) {
 function gameEvent(io, game, command, roomName, data) {
   switch (command) {
     case cmd.START_TIMER:
+      let allPlayers = Object.values(game.players)
+      for (let i = 0; i < allPlayers.length; i++) {
+        allPlayers[i].init(game.pieces[0],game.pieces[1]);
+        io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:allPlayers[i]})
+      }
+
       let waitTimer = setInterval(() => {
         //decrays time left to start
         io.emit(`room#${roomName}`, {command:cmd.WAITING_TO_START,data:game.timeleft})
         game.timeleft--
         if (game.timeleft < 0){
           clearInterval(waitTimer)
-          let allPlayers = Object.values(game.players)
-          for (let i = 0; i < allPlayers.length; i++) {
-            console.log(game.pieces,'ici')
-            allPlayers[i].init(game.pieces[0]);
-          }
-          game.state = help.IN_GAME
+          gameEvent(io, game, cmd.START_GAME, roomName, null)
         }
       },100)
       break;
   
     case cmd.START_GAME:
-      game.internalClockEvent = gameClock(io, game, game.timespeed)
+      game.state = help.IN_GAME
+      game.internalClockEvent = gameClock(io, game, roomName, game.timespeed)
       break;
-    case cmd.ADD_LINE: {
-        data.socket
-      }
+    case cmd.ADD_LINE:
+        if (game.state == help.IN_GAME) {
+          let tokens = Object.keys(game.players)
+          for (let index = 0; index < tokens.length; index++) {
+            const player = game.players[tokens];
+            if (player.state == help.PLAYER_ALIVE) {
+              player.waitLines += data
+            }
+          }
+        }
       break;
     default:
       logerror('bad game event', game, command)
@@ -219,22 +227,32 @@ function gameEvent(io, game, command, roomName, data) {
   }
 }
 
-function gameClock(io, game, time) {
-  setTimeout(() => {
+function gameClock(io, game, roomName, time) {
+  console.log('tic')
+  return setTimeout(() => {
     if (game.state == help.IN_GAME) {
-      for (let index = 0; index < game.players.length; index++) {
-        const player = game.players[index];
+      let tokens = Object.keys(game.players)
+      for (let index = 0; index < tokens.length; index++) {
+        const player = game.players[tokens];
         if (player.state == help.PLAYER_ALIVE) {
-          if (player.shiftDown()) {
-            if (!player.newPiece(game.pieces[player.index]))
-              {} //// kill the player
-            game.testPieces(player.index)
+        console.log('tac',player.name,player.state)
+          if (!player.shiftDown()) {
+            let ok = player.newPiece(game.getPieces(player.index),game.getPieces(player.index + 1))
+            console.log(ok)
+            if (ok[1]) {
+              gameEvent(null, game, cmd.ADD_LINE, null, ok[1])
+            }
+            if (!ok[0]) {
+              game.killplayer(tokens[index])
+              loginfo(player.name, "is dead", tokens[index])
+            } //// kill the player
             let nbline = 0;
             //// test remove line gameEvent(io, game, cmd.ADD_LINE, {socketid:socket,nbline:nbline})
           }
+          io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
         }
       } 
-      game.internalClockEvent = gameClock(io, game, game.timespeed)
+      game.internalClockEvent = gameClock(io, game, roomName, game.timespeed)
     }
   }, time);
 }
