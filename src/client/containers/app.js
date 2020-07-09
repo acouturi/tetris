@@ -52,7 +52,8 @@ function maincode(socket){
   socket.on(`room#${room_name}`, (msg) => {
     console.log(`[REPONSE] room#${room_name}`, msg)
     if (msg.command == "REFRESH_PLAYER")
-      document.getElementById('tmpScreen').value = JSON.stringify(msg.data.screen).replace(/],/g,'\n').replace(/\[/g,'').replace(']]','')
+      if (msg.data.socketid == socket.id)
+        document.getElementById('tmpScreen').value = JSON.stringify(msg.data.screen).replace(/],/g,'\n').replace(/\[/g,'').replace(']]','')
   })
 
   // Ecoute les key pressed et les envoies au back

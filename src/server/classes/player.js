@@ -123,11 +123,14 @@ export default class Player {
           this.board.unshift(_.map(new Array(10), () => {return -1}))
         }
       }
-      return removed == 0 ? removed : removed - 1
+      console.log(removed)
+      let tmp = removed == 0 ? 0 : (removed - 1)
+      console.log(tmp)
+      return tmp
     }
 
     addbadline() {
-      while (this.waitLines-- > 0) {
+      while (this.waitLines > 0) {
         let line = this.board.shift()
         this.board.push(_.map(new Array(10), () => {return -2}))
         for (let x = 0; x < line.length; x++) {
@@ -136,6 +139,7 @@ export default class Player {
             return true
           }
         }
+        this.waitLines--
       }
       return false
     }
