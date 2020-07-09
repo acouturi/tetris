@@ -49,15 +49,16 @@ export function gameEvent(io, game, command, roomName, data) {
 }
   
 export function gameClock(io, game, roomName, time) {
-    console.log('tic', game.timespeed)
-    loginfo('tic', game.timespeed)
+    loginfo('tic', game.timespeed, game.watchdog)
     return setTimeout(() => {
+      if (game.watchdog-- == 0)
+        return
       if (game.state == help.IN_GAME) {
         let tokens = Object.keys(game.players)
         for (let index = 0; index < tokens.length; index++) {
           const player = game.players[tokens[index]];
           if (player.state == help.PLAYER_ALIVE) {
-          console.log('tac',player.name,player.state)
+            loginfo('tac',player.name,player.state)
             if (!player.shiftDown()) {
               let ok = player.newPiece(game.getPieces(player.index),game.getPieces(player.index + 1))
               if (ok[1]) {
@@ -66,9 +67,7 @@ export function gameClock(io, game, roomName, time) {
               if (!ok[0]) {
                 game.killplayer(tokens[index])
                 loginfo(player.name, "is dead", tokens[index])
-              } //// kill the player
-              let nbline = 0;
-              //// test remove line gameEvent(io, game, cmd.ADD_LINE, {socketid:socket,nbline:nbline})
+              }
             }
             io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
           }

@@ -9,6 +9,7 @@ const PIECES_BUFFER = 10
 const DEFAULT_SPEED = 2000
 const MIN_SPEED = 100
 const STEP_SPEED = 10
+const WATCH_DOG = 40
 
 export default class Game {
   constructor(token, player) {
@@ -32,17 +33,18 @@ export default class Game {
         this.timespeed -= STEP_SPEED
       this.addNewPiece()
     }
+    this.watchdog = WATCH_DOG
     return this.pieces[index]
   }
 
   init() {
     this.badLines = 0
-    let nbplayer = (Object.keys(this.players).length)
-    this.playerAlive = nbplayer == 1 ? 2 : nbplayer
+    this.playerAlive = Object.keys(this.players).length == 1 ? 2 : Object.keys(this.players).length
     clearInterval(this.internalClockEvent)
     this.internalClockEvent = null
     this.timespeed = DEFAULT_SPEED
     this.state = help.INIT_GAME
+    this.watchdog = WATCH_DOG
     // generate pieces
     this.pieces = _.map(new Array(PIECES_BUFFER), () => new Piece())
     this.timeleft = 5
@@ -51,7 +53,6 @@ export default class Game {
   gameOver() {
     clearInterval(this.internalClockEvent)
     this.state = help.GAME_OVER
-    clearInterval(this.internalClockEvent)
     this.internalClockEvent = null
   }
 
@@ -69,8 +70,6 @@ export default class Game {
   killplayer(token) {
     this.players[token].state = help.PLAYER_DEAD
     this.playerAlive--
-    console.log("kill",this.players[token].name)
-    console.log(this.playerAlive)
     if (this.playerAlive == 1)
       this.gameOver()
   }
@@ -80,12 +79,14 @@ export default class Game {
   }
 
   removeplayer(token) {
+    console.log(this.players.name, 'is now dead')
     delete this.players[token]
-    if (Object.keys(this.players) == 0){
+    this.playerAlive--
+    if (Object.keys(this.players).length == 0){
       clearInterval(this.internalClockEvent)
       return 1
     }
-    else if(Object.keys(this.players) == 1)
+    else if(this.playerAlive <= 1)
       this.gameOver()
     return 0
   }

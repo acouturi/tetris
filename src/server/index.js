@@ -60,7 +60,6 @@ const initEngine = io => {
       let token = generatetoken()
       // newplayer.init(new Piece())
 
-      let nb_player = 0
       let roomName = register.room
       if (!mapGame[roomName]) {
         let curentroom = new Game(token,newplayer)
@@ -82,7 +81,8 @@ const initEngine = io => {
           delete mapGame[roomName]
         }
       })
-      socket.emit('register', { token: token, nb_player: nb_player } )
+      console.log(token)
+      socket.emit('register', { token: token, nb_player: null } )
     })
   })
 }

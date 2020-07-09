@@ -41,12 +41,10 @@ export default class Player {
               if (screen[x + currentPiece.positionx][y + currentPiece.positiony] == -1)
                 screen[x + currentPiece.positionx][y + currentPiece.positiony] = currentPiece.color
               else {
-                console.error('error 1', 'le pixel est deja rempli')
                 return false
               }
             }
             else{
-              console.error('error 1', 'la piece est en a l\'exterieur du cadre')
               return false
             }
           }

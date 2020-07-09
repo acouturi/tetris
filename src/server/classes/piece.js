@@ -12,7 +12,6 @@ export default class Piece {
             this.positionx = positionx
         else {
             const pieceform = pieces[this.form][this.rotation]
-                            console.log(pieceform)
             let reduce = 0
             testelem :{
                 for (let x = 0; x < pieceform.length; x++) {
@@ -27,7 +26,6 @@ export default class Piece {
             }
             this.positionx = reduce
         }
-        console.log(this.positionx, this.form, this.rotation)
         this.color = Math.round(88)//color
     }
 

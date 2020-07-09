@@ -11,7 +11,7 @@ const logerror = debug('tetris:player_error')
 
 export function playerEvent(io, socket, action, curentroom, roomName, token) {
     let player = curentroom.players[token]
-    console.log(action, player.name)
+    loginfo(action, player.name)
     // console.log(player)
     // return;
     switch (action.command) {
@@ -43,8 +43,8 @@ export function playerEvent(io, socket, action, curentroom, roomName, token) {
                 gameEvent(null, curentroom, cmd.ADD_LINE, null, ok[1])
             }
             if (!ok[0]) {
-              curentroom.killplayer(token)
               loginfo(player.name, "is dead", token)
+              curentroom.killplayer(token)
             } //// kill the player
             let nbline = 0;
             //// test remove line gameEvent(io, game, cmd.ADD_LINE, {socketid:socket,nbline:nbline})
