@@ -10,6 +10,7 @@ export default class Player {
       this.state = help.PLAYER_NEW
     }
 
+    //tested full
     init(newpiece,nextPiece) {
       this.score = 0
       this.waitLines = 0
@@ -21,13 +22,15 @@ export default class Player {
       this.refreshScreen()
     }
 
+    //tested full
     restart() {
       this.state = help.PLAYER_NEW
       this.board = []
       this.screen = []
       this.currentPiece = null
     }
-      
+
+    //tested full
     refreshScreen() {
       let screen = JSON.parse(JSON.stringify(this.board))
       let currentPiece = this.currentPiece
@@ -50,6 +53,7 @@ export default class Player {
       return true
     }
 
+    //tested full
     shiftRight() {
       let currentPiece = this.currentPiece
       const thisPiece = pieces[currentPiece.form][currentPiece.rotation]
@@ -60,6 +64,7 @@ export default class Player {
       }
     }
 
+    //tested full
     shiftLeft() {
       let currentPiece = this.currentPiece
       const thisPiece = pieces[currentPiece.form][currentPiece.rotation]
@@ -67,9 +72,11 @@ export default class Player {
       if (!this.refreshScreen()) {
         currentPiece.positiony++
         this.refreshScreen()
+
       }
     }
 
+    //tested full
     shiftDown() {
       this.currentPiece.positionx++
       if (!this.refreshScreen()) {
@@ -80,6 +87,7 @@ export default class Player {
       return true
     }
 
+    //tested full
     shiftFall() {
       this.currentPiece.positionx++
       while (this.refreshScreen())
@@ -89,6 +97,7 @@ export default class Player {
       return false
     }
 
+    //tested
     rotatePiece() {
       this.currentPiece.rotate()
       let ok = this.refreshScreen()
@@ -102,12 +111,15 @@ export default class Player {
           this.currentPiece.positiony--
         ok = this.refreshScreen()
         tmp = ok
-        if (this.currentPiece.positionx > 0 && this.currentPiece.positiony > 0 && (this.currentPiece.positiony + pieces[this.currentPiece.form][0].length + 1) < this.board[0].length)
+        if (this.currentPiece.positionx > 0 && this.currentPiece.positiony > 0 && (this.currentPiece.positiony + pieces[this.currentPiece.form][0].length + 1) < this.board[0].length){
           ok = true
+          console.error('usless 1')
+        }
       }
       return tmp
     }
 
+    //tested full
     removeline() {
       let removed = 0
       for (let x = 0; x < this.board.length; x++) {
@@ -128,6 +140,7 @@ export default class Player {
       return removed == 0 ? 0 : (removed - 1)
     }
 
+    //tested full
     addbadline() {
       while (this.waitLines > 0) {
         let line = this.board.shift()
@@ -142,6 +155,7 @@ export default class Player {
       return false
     }
 
+    //tested full
     newPiece(newpiece,nextPiece) {
       this.index++
       this.board = this.screen
@@ -159,17 +173,14 @@ export default class Player {
       return [ok, removeline]
     }
 
-    fillBadLine() {
-      while (this.waitLines--) {
-        let firstLine = this.board.shift()
-        this.board.push(_.map(new Array(10), () => {return -2} ))
-        this.refreshScreen()
-      }
-    }
-
+    //tested full
     data() {
-      const cleared = (({ socketid,name,state,screen,score }) => ({ socketid,name,state,screen,score }))(this);
-      cleared.nextPiece = pieces[this.nextPiece.form][this.nextPiece.rotation]
+      if (this.screen){
+        const cleared = (({ socketid,name,state,screen,score }) => ({ socketid,name,state,screen,score }))(this);
+        cleared.nextPiece = pieces[this.nextPiece.form][this.nextPiece.rotation]
+        return cleared
+      }
+      const cleared = (({socketid,name,state}) => ({socketid,name,state}))(this);
       return cleared
     }
 }

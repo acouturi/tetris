@@ -19,8 +19,16 @@ export default class Game {
     this.state = help.WAIT_PLAYERS
   }
 
-  log(msg) {
-    console.log('on est ici',msg)
+  init() {
+    this.badLines = 0
+    this.playerAlive = Object.keys(this.players).length == 1 ? 2 : Object.keys(this.players).length
+    clearInterval(this.internalClockEvent)
+    this.internalClockEvent = null
+    this.timespeed = DEFAULT_SPEED
+    this.state = help.INIT_GAME
+    this.watchdog = WATCH_DOG
+    this.pieces = _.map(new Array(PIECES_BUFFER), () => new Piece())
+    this.timeleft = 5
   }
 
   addNewPiece() {
@@ -37,34 +45,22 @@ export default class Game {
     return this.pieces[index]
   }
 
-  init() {
-    this.badLines = 0
-    this.playerAlive = Object.keys(this.players).length == 1 ? 2 : Object.keys(this.players).length
-    clearInterval(this.internalClockEvent)
-    this.internalClockEvent = null
-    this.timespeed = DEFAULT_SPEED
-    this.state = help.INIT_GAME
-    this.watchdog = WATCH_DOG
-    this.pieces = _.map(new Array(PIECES_BUFFER), () => new Piece())
-    this.timeleft = 5
-  }
-
   gameOver() {
     clearInterval(this.internalClockEvent)
     this.state = help.GAME_OVER
     this.internalClockEvent = null
   }
 
+  /////// unused
   restart() {
     this.state = help.WAIT_PLAYERS
-    for (let index = 0; index < players.length; index++) {
-      const player = players[index];
+    let lsttoken = Object.keys(this.players)
+    for (let index = 0; index < lsttoken.length; index++) {
+      const player = this.players[lsttoken[index]];
       player.restart()
     }
     this.pieces = []
   }
-
-
 
   killplayer(token) {
     this.players[token].state = help.PLAYER_DEAD
@@ -77,14 +73,15 @@ export default class Game {
   }
 
   removeplayer(token) {
-    console.log(this.players.name, 'is now dead')
     delete this.players[token]
+    if (this.state == help.WAIT_PLAYERS || this.state == help.GAME_OVER)
+      return 0
     this.playerAlive--
-    if (Object.keys(this.players).length == 0){
+    if (Object.keys(this.players).length < 1){
       clearInterval(this.internalClockEvent)
       return 1
     }
-    else if(this.playerAlive <= 1)
+    if(this.playerAlive <= 1)
       this.gameOver()
     return 0
   }
