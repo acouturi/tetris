@@ -1,5 +1,5 @@
 import chai from "chai"
-import {startServer, configureStore} from './helpers/server'
+import {startServer, configureStore} from '../test/helpers/server'
 import rootReducer from '../src/client/reducers'
 import {ping} from '../src/client/actions/server'
 import io from 'socket.io-client'

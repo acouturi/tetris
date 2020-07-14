@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for client/containers/app.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">all files</a> / <a href="index.html">client/containers/</a> app.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">16.67% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>1/6</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/8</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/7</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">16.67% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>1/6</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from 'react'
+import { connect } from 'react-redux'
+import { register } from '../actions/server'
+import * as cmd from '../../helpers'
+&nbsp;
+console.log(window.location)
+&nbsp;
+const params = window.location.hash
+console.log(params)
+&nbsp;
+const mapKey = {
+  ArrowRight: cmd.RIGHT,
+  ArrowLeft: cmd.LEFT,
+  ArrowUp: cmd.ROTATE,
+  ArrowDown: cmd.DOWN,
+  Space: cmd.FALL,
+  Escape: cmd.PAUSE
+}
+&nbsp;
+let token = null
+let nb_player = null
+let player_name = params.slice(params.indexOf('[')+1, -1)
+let room_name = params.substr(1, params.indexOf('[')-1)
+&nbsp;
+const App = <span class="fstat-no" title="function not covered" >({socket}) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  if (!socket)</span>
+    return (
+      &lt;div&gt;&lt;/div&gt;
+    )
+  console.log('socket:',socket)
+  return (
+    &lt;div&gt;
+      &lt;button onClick={<span class="fstat-no" title="function not covered" >() =&gt; {</span>
+        console.log("token nb_player:", token, nb_player)
+      }}&gt;token player&lt;/button&gt;
+      &lt;button onClick={<span class="fstat-no" title="function not covered" >() =&gt; {</span>
+        console.log({token, command: cmd.START})
+        socket.emit(`room#${room_name}`, {token, command: cmd.START})
+      }}&gt;START&lt;/button&gt;
+      &lt;textarea id='tmpScreen' rows="30" cols="50"&gt;&lt;/textarea&gt;
+      &lt;textarea id='tmpScreen2' rows="30" cols="50"&gt;&lt;/textarea&gt;
+      &lt;script&gt; {maincode(socket)}&lt;/script&gt;
+    &lt;/div&gt;
+  )
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function maincode(socket){</span>
+  console.log("player name:", player_name)
+  console.log("room name:", room_name)
+  socket.emit('register', register(room_name, player_name))
+  console.log("mainSocket socket:", socket)
+  socket.on('register', (msg) =&gt; ({token, nb_player} = msg))
+  socket.on(`room#${room_name}`, <span class="fstat-no" title="function not covered" >(msg) =&gt; {</span>
+    console.log(`[REPONSE] room#${room_name}`, msg)
+<span class="cstat-no" title="statement not covered" >    if (msg.command == "REFRESH_PLAYER")</span>
+<span class="cstat-no" title="statement not covered" >      if (msg.data.socketid == socket.id)</span>
+<span class="cstat-no" title="statement not covered" >        document.getElementById('tmpScreen').value = JSON.stringify(msg.data.screen).replace(/],/g,'\n').replace(/\[/g,'').replace(']]','')</span>
+      else
+        document.getElementById('tmpScreen2').value = JSON.stringify(msg.data.screen).replace(/],/g,'\n').replace(/\[/g,'').replace(']]','')
+  })
+&nbsp;
+  // Ecoute les key pressed et les envoies au back
+  document.addEventListener('keyup', <span class="fstat-no" title="function not covered" >(key) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (key.code in mapKey) {</span>
+      const command = mapKey[key.code]
+      console.log(`[SEND] room#${room_name}`, {token, command})
+      socket.emit(`room#${room_name}`, {token, command})
+    }
+  })
+}
+&nbsp;
+const mapStateToProps = <span class="fstat-no" title="function not covered" >(state) =&gt; {</span>
+  return {
+    socket: state.socket_reducer.socket,
+  }
+}
+export default connect(mapStateToProps, null)(App)
+&nbsp;
+&nbsp;
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jul 14 2020 18:26:08 GMT+0200 (Central European Summer Time)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>
