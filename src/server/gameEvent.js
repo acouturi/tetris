@@ -21,13 +21,18 @@ export function gameEvent(io, game, command, roomName, data= null) {
           io.emit(`room#${roomName}`, {command:cmd.WAITING_TO_START,data:game.timeleft})
           game.timeleft--
           if (game.timeleft < 0){
-          clearInterval(waitTimer)
-          gameEvent(io, game, cmd.START_GAME, roomName)
+            clearInterval(waitTimer)
+            gameEvent(io, game, cmd.START_GAME, roomName)
           }
       },100)   //////// mettre 1000
       break;
     case cmd.START_GAME:
       game.state = help.IN_GAME
+      let lstplayer= []
+      Object.keys(game.players).forEach(token => {
+        lstplayer.push(game.players[token].data())
+      });
+      io.emit(`room#${roomName}`, {command:cmd.GAMESTART,data:lstplayer})
       game.internalClockEvent = gameClock(io, game, roomName, game.timespeed)
       break;
     case cmd.END_GAME:
