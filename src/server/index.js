@@ -54,11 +54,14 @@ const initEngine = io => {
     let socketid = socket.id
     loginfo("Socket connected: " + socketid)
     socket.on('register', (register) => {
+
+      if (!register.player_name || register.player_name.length == 0 || !register.room || register.room.length == 0)
+        return socket.emit('msgError', { msg: "username or room name invalide" } )
+
       loginfo(socketid + " is now : " + register.player_name)
 
       let newplayer = new Player(register.player_name, socketid)
       let token = generatetoken()
-      // newplayer.init(new Piece())
 
       let roomName = register.room
       if (!mapGame[roomName]) {
@@ -66,20 +69,15 @@ const initEngine = io => {
         mapGame[roomName] = curentroom
         loginfo("creat the room " + roomName)
       }
-      else {
-        // if (mapGame[roomName].state == help.WAIT_PLAYERS)
+      else
           mapGame[roomName].addplayer(token,newplayer)
-        // else
-          // {}//add in spectator mod
-      }
       console.log(Object.keys(mapGame[roomName].players))
-      socket.on(`room#${roomName}`, (action) => playerEvent(io, socket, action, mapGame[roomName], roomName, token)) ///gamePlayerEvent(io, socket, action, curentroom)
+      socket.on(`room#${roomName}`, (action) => playerEvent(io, socket, action, mapGame[roomName], roomName, token))
 
       socket.on('disconnect', ()=> {
         loginfo(register.player_name, "ragequit", token)
-        if (mapGame[roomName].removeplayer(token)){
+        if (mapGame[roomName].removeplayer(token))
           delete mapGame[roomName]
-        }
       })
       console.log(token)
       socket.emit('register', { token: token, nb_player: null } )

@@ -45,7 +45,6 @@ export default class Game {
     this.timespeed = DEFAULT_SPEED
     this.state = help.INIT_GAME
     this.watchdog = WATCH_DOG
-    // generate pieces
     this.pieces = _.map(new Array(PIECES_BUFFER), () => new Piece())
     this.timeleft = 5
   }
@@ -70,8 +69,7 @@ export default class Game {
   killplayer(token) {
     this.players[token].state = help.PLAYER_DEAD
     this.playerAlive--
-    if (this.playerAlive == 1)
-      this.gameOver()
+    return this.playerAlive == 1
   }
 
   addplayer(token, player) {

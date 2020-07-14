@@ -12,25 +12,23 @@ const logerror = debug('tetris:player_error')
 export function playerEvent(io, socket, action, curentroom, roomName, token) {
     let player = curentroom.players[token]
     loginfo(action, player.name)
-    // console.log(player)
-    // return;
     switch (action.command) {
       case cmd.RIGHT:
         if (curentroom.state == help.IN_GAME && player.state == help.PLAYER_ALIVE){
           player.shiftRight()
-          io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
+          io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player.data()})
         }
         break;
       case cmd.LEFT:
         if (curentroom.state == help.IN_GAME && player.state == help.PLAYER_ALIVE){
           player.shiftLeft()
-          io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
+          io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player.data()})
         }
         break;
       case cmd.ROTATE:
         if (curentroom.state == help.IN_GAME && player.state == help.PLAYER_ALIVE){
           player.rotatePiece()
-          io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
+          io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player.data()})
         }
         break;
       case cmd.DOWN:
@@ -39,17 +37,16 @@ export function playerEvent(io, socket, action, curentroom, roomName, token) {
           let ok = action.command == cmd.DOWN ? player.shiftDown() : player.shiftFall()
           if (!ok) {
             ok = player.newPiece(curentroom.getPieces(player.index),curentroom.getPieces(player.index + 1))
-            if (ok[1]) {
+            if (ok[1])
                 gameEvent(null, curentroom, cmd.ADD_LINE, null, ok[1])
-            }
             if (!ok[0]) {
               loginfo(player.name, "is dead", token)
-              curentroom.killplayer(token)
-            } //// kill the player
+              if(curentroom.killplayer(token))
+                gameEvent(io, curentroom, cmd.END_GAME, roomName)
+            }
             let nbline = 0;
-            //// test remove line gameEvent(io, game, cmd.ADD_LINE, {socketid:socket,nbline:nbline})
           }
-          io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player})
+          io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player.data()})
         }
         break;
       case cmd.PAUSE:
@@ -72,9 +69,7 @@ export function playerEvent(io, socket, action, curentroom, roomName, token) {
             curentroom.state = help.INIT_GAME
             loginfo("initialisation of the room " + roomName)
             curentroom.init()
-            // socket.emit(`room#${roomName}`, action)
-            // io.emit(`room#${roomName}`, {command:cmd.WAITING_TO_START,data:0})
-            gameEvent(io, curentroom, cmd.START_TIMER, roomName, null)
+            gameEvent(io, curentroom, cmd.START_TIMER, roomName)
           }
         }
         break;

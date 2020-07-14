@@ -11,14 +11,13 @@ export default class Player {
     }
 
     init(newpiece,nextPiece) {
+      this.score = 0
       this.waitLines = 0
       this.board = _.map(new Array(20), () => _.map(new Array(10), () => {return -1} ))
       this.index = 1
       this.state = help.PLAYER_ALIVE
       this.currentPiece = Object.assign( Object.create( Object.getPrototypeOf(newpiece)), newpiece)
       this.nextPiece = JSON.parse(JSON.stringify(nextPiece))
-      // this.currentPiece = JSON.parse(JSON.stringify(newpiece))
-      // console.log(newpiece)
       this.refreshScreen()
     }
 
@@ -30,7 +29,6 @@ export default class Player {
     }
       
     refreshScreen() {
-      // calque sur lequel on a la piece qui bouge
       let screen = JSON.parse(JSON.stringify(this.board))
       let currentPiece = this.currentPiece
       const thisPiece = pieces[currentPiece.form][currentPiece.rotation]
@@ -40,13 +38,11 @@ export default class Player {
             if (screen[x + currentPiece.positionx] && screen[x + currentPiece.positionx][y + currentPiece.positiony]) {
               if (screen[x + currentPiece.positionx][y + currentPiece.positiony] == -1)
                 screen[x + currentPiece.positionx][y + currentPiece.positiony] = currentPiece.color
-              else {
+              else
                 return false
-              }
             }
-            else{
+            else
               return false
-            }
           }
         }
       }
@@ -86,9 +82,8 @@ export default class Player {
 
     shiftFall() {
       this.currentPiece.positionx++
-      while (this.refreshScreen()) {
+      while (this.refreshScreen())
         this.currentPiece.positionx++
-      }
       this.currentPiece.positionx--
       this.refreshScreen()
       return false
@@ -129,6 +124,7 @@ export default class Player {
           this.board.unshift(_.map(new Array(10), () => {return -1}))
         }
       }
+      this.score += (10 * (removed))
       return removed == 0 ? 0 : (removed - 1)
     }
 
@@ -138,9 +134,8 @@ export default class Player {
         this.board.push(_.map(new Array(10), () => {return -2}))
         for (let x = 0; x < line.length; x++) {
           const element = line[x];
-          if (element != -1) {
+          if (element != -1)
             return true
-          }
         }
         this.waitLines--
       }
@@ -150,6 +145,7 @@ export default class Player {
     newPiece(newpiece,nextPiece) {
       this.index++
       this.board = this.screen
+      this.score += 4
 
       let removeline = this.removeline()
       this.waitLines -= removeline
@@ -159,17 +155,8 @@ export default class Player {
 
       this.currentPiece = Object.assign( Object.create( Object.getPrototypeOf(newpiece)), newpiece)
       this.nextPiece =JSON.parse(JSON.stringify(nextPiece))
-
-      // this.board = JSON.parse(JSON.stringify(this.screen))
-      // this.currentPiece = JSON.parse(JSON.stringify(newpiece))
       let ok = this.refreshScreen()
       return [ok, removeline]
-      // if (JSON.stringify(this.board) != JSON.stringify(this.screen)) {
-      //   //fillBadLine()
-      //   return (JSON.stringify(this.board) != JSON.stringify(this.screen))
-      // }
-      // return false
-      ////test if player dead
     }
 
     fillBadLine() {
@@ -178,5 +165,11 @@ export default class Player {
         this.board.push(_.map(new Array(10), () => {return -2} ))
         this.refreshScreen()
       }
+    }
+
+    data() {
+      const cleared = (({ socketid,name,state,screen,score }) => ({ socketid,name,state,screen,score }))(this);
+      cleared.nextPiece = pieces[this.nextPiece.form][this.nextPiece.rotation]
+      return cleared
     }
 }
