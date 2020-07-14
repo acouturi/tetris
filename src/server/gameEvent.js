@@ -37,11 +37,11 @@ export function gameEvent(io, game, command, roomName, data= null) {
       break;
     case cmd.END_GAME:
       game.gameOver()
-      let lstplayer= []
+      let lstplayer2= []
       Object.keys(game.players).forEach(token => {
-        lstplayer.push(game.players[token].data())
+        lstplayer2.push(game.players[token].data())
       });
-      io.emit(`room#${roomName}`, {command:cmd.GAMEOVER,data:lstplayer})
+      io.emit(`room#${roomName}`, {command:cmd.GAMEOVER,data:lstplayer2})
       break;
     case cmd.ADD_LINE:
         if (game.state == help.IN_GAME) {
