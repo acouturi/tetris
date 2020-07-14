@@ -26,7 +26,7 @@ export default class Piece {
             }
             this.positionx = reduce
         }
-        this.color =color
+        this.color = Math.round(88) ////////color
     }
 
     rotate() {
