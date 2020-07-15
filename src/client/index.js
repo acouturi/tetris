@@ -8,10 +8,6 @@ import {storeStateMiddleWare} from './middleware/storeStateMiddleWare'
 import reducer from './reducers'
 import App from './containers/app'
 import {alert} from './actions/alert'
-import {socketConnect, socketRequest, socketSuccess} from './actions/socket'
-import socketIOClient from "socket.io-client";
-import io from 'socket.io-client'
-import params from '../../params'
 
 // const socket = io(params.server.url)
 
@@ -33,4 +29,3 @@ ReactDom.render((
 ), document.getElementById('tetris'))
 
 console.log('toto')
-store.dispatch(socketSuccess(io(params.server.url)))
