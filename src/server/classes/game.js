@@ -1,8 +1,6 @@
 import _ from 'lodash'
-import piece from './piece'
 import Piece from './piece'
-import * as help from '../helpers'
-import { pieces } from '../helpers/pieces'
+import * as cmd from '../../helpers'
 
 const PIECES_BUFFER = 10
 
@@ -12,11 +10,14 @@ const STEP_SPEED = 10
 const WATCH_DOG = 40
 
 export default class Game {
-  constructor(token, player) {
+  constructor(token, player, io, name) {
     this.players = {}
     this.players[token] = player
     this.internalClockEvent = null
-    this.state = help.WAIT_PLAYERS
+    this.state = cmd.WAIT_PLAYERS
+    this.testing = false
+    this.io = io
+    this.name = name
   }
 
   init() {
@@ -25,7 +26,7 @@ export default class Game {
     clearInterval(this.internalClockEvent)
     this.internalClockEvent = null
     this.timespeed = DEFAULT_SPEED
-    this.state = help.INIT_GAME
+    this.state = cmd.INIT_GAME
     this.watchdog = WATCH_DOG
     this.pieces = _.map(new Array(PIECES_BUFFER), () => new Piece())
     this.timeleft = 5
@@ -47,13 +48,13 @@ export default class Game {
 
   gameOver() {
     clearInterval(this.internalClockEvent)
-    this.state = help.GAME_OVER
+    this.state = cmd.GAME_OVER
     this.internalClockEvent = null
   }
 
   /////// unused
   restart() {
-    this.state = help.WAIT_PLAYERS
+    this.state = cmd.WAIT_PLAYERS
     let lsttoken = Object.keys(this.players)
     for (let index = 0; index < lsttoken.length; index++) {
       const player = this.players[lsttoken[index]];
@@ -63,7 +64,8 @@ export default class Game {
   }
 
   killplayer(token) {
-    this.players[token].state = help.PLAYER_DEAD
+    this.players[token].state = cmd.PLAYER_DEAD
+    this.emit(cmd.PLAYER_GONE,this.data())
     this.playerAlive--
     return this.playerAlive == 1
   }
@@ -74,7 +76,7 @@ export default class Game {
 
   removeplayer(token) {
     delete this.players[token]
-    if (this.state == help.WAIT_PLAYERS || this.state == help.GAME_OVER)
+    if (this.state == cmd.WAIT_PLAYERS || this.state == cmd.GAME_OVER)
       return 0
     this.playerAlive--
     if (Object.keys(this.players).length < 1){
@@ -84,5 +86,20 @@ export default class Game {
     if(this.playerAlive <= 1)
       this.gameOver()
     return 0
+  }
+
+  data() {
+    const cleared = (({state,name,playerAlive,timespeed,pieces}) => ({state,name,playerAlive,timespeed,pieces}))(this);
+    let lstplayer = []
+    Object.keys(this.players).forEach(token => {
+      lstplayer.push(this.players[token].data())
+    });
+    return cleared
+  }
+
+  emit(cmd,data) {
+    if (this.testing)
+      return
+    this.io.emit(`room#${this.name}`,{command:cmd,data:data})
   }
 }

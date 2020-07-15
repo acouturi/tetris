@@ -1,5 +1,4 @@
 import debug from 'debug'
-import * as help from './helpers'
 import * as cmd from '../helpers'
 
 const logerror = debug('tetris:game_error')
@@ -14,11 +13,12 @@ export function gameEvent(io, game, command, roomName, data= null) {
       let allPlayers = Object.values(game.players)
       for (let i = 0; i < allPlayers.length; i++) {
           allPlayers[i].init(game.pieces[0],game.pieces[1]);
-          io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:allPlayers[i].data()})
+          game.emit(cmd.REFRESH_PLAYER,allPlayers[i].data())
       }
 
       let waitTimer = setInterval(() => {
-          io.emit(`room#${roomName}`, {command:cmd.WAITING_TO_START,data:game.timeleft})
+          game.emit(cmd.WAITING_TO_START,game.timeleft)
+
           game.timeleft--
           if (game.timeleft < 0){
             clearInterval(waitTimer)
@@ -27,28 +27,28 @@ export function gameEvent(io, game, command, roomName, data= null) {
       },100)   //////// mettre 1000
       break;
     case cmd.START_GAME:
-      game.state = help.IN_GAME
+      game.state = cmd.IN_GAME
       let lstplayer= []
       Object.keys(game.players).forEach(token => {
         lstplayer.push(game.players[token].data())
       });
-      io.emit(`room#${roomName}`, {command:cmd.GAMESTART,data:lstplayer})
+      game.emit(cmd.GAMESTART,game.lstplayer)
       game.internalClockEvent = gameClock(io, game, roomName, game.timespeed)
       break;
     case cmd.END_GAME:
       game.gameOver()
-      let lstplayer2= []
+      let lstplayer2 = []
       Object.keys(game.players).forEach(token => {
         lstplayer2.push(game.players[token].data())
       });
-      io.emit(`room#${roomName}`, {command:cmd.GAMEOVER,data:lstplayer2})
+      game.emit(cmd.GAMEOVER,game.lstplayer2)
       break;
     case cmd.ADD_LINE:
-        if (game.state == help.IN_GAME) {
+        if (game.state == cmd.IN_GAME) {
           let tokens = Object.keys(game.players)
           for (let index = 0; index < tokens.length; index++) {
             const player = game.players[tokens[index]];
-            if (player.state == help.PLAYER_ALIVE)
+            if (player.state == cmd.PLAYER_ALIVE)
               player.waitLines += data
           }
         }
@@ -64,11 +64,11 @@ export function gameClock(io, game, roomName, time) {
     return setTimeout(() => {
       if (game.watchdog-- == 0)
         return
-      if (game.state == help.IN_GAME) {
+      if (game.state == cmd.IN_GAME) {
         let tokens = Object.keys(game.players)
         for (let index = 0; index < tokens.length; index++) {
           const player = game.players[tokens[index]];
-          if (player.state == help.PLAYER_ALIVE) {
+          if (player.state == cmd.PLAYER_ALIVE) {
             loginfo('tac',player.name,player.state)
             if (!player.shiftDown()) {
               let ok = player.newPiece(game.getPieces(player.index),game.getPieces(player.index + 1))
@@ -81,7 +81,7 @@ export function gameClock(io, game, roomName, time) {
                 }
               }
             }
-            io.emit(`room#${roomName}`, {command:cmd.REFRESH_PLAYER,data:player.data()})
+            game.emit(cmd.REFRESH_PLAYER,player.data())
           }
         } 
         game.internalClockEvent = gameClock(io, game, roomName, game.timespeed)

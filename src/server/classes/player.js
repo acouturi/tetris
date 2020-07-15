@@ -1,13 +1,12 @@
 import _ from 'lodash'
-import * as help from '../helpers'
+import * as cmd from '../../helpers'
 import {pieces} from '../helpers/pieces'
-import Pieces from './piece'
 
 export default class Player {
     constructor(name, socketid) {
       this.name = name
       this.socketid = socketid
-      this.state = help.PLAYER_NEW
+      this.state = cmd.PLAYER_NEW
     }
 
     //tested full
@@ -16,7 +15,7 @@ export default class Player {
       this.waitLines = 0
       this.board = _.map(new Array(20), () => _.map(new Array(10), () => {return -1} ))
       this.index = 1
-      this.state = help.PLAYER_ALIVE
+      this.state = cmd.PLAYER_ALIVE
       this.currentPiece = Object.assign( Object.create( Object.getPrototypeOf(newpiece)), newpiece)
       this.nextPiece = JSON.parse(JSON.stringify(nextPiece))
       this.refreshScreen()
@@ -24,7 +23,7 @@ export default class Player {
 
     //tested full
     restart() {
-      this.state = help.PLAYER_NEW
+      this.state = cmd.PLAYER_NEW
       this.board = []
       this.screen = []
       this.currentPiece = null
@@ -173,14 +172,14 @@ export default class Player {
       return [ok, removeline]
     }
 
-    //tested full
+    //tested
     data() {
       if (this.screen){
         const cleared = (({ socketid,name,state,screen,score }) => ({ socketid,name,state,screen,score }))(this);
         cleared.nextPiece = pieces[this.nextPiece.form][this.nextPiece.rotation]
         return cleared
       }
-      const cleared = (({socketid,name,state}) => ({socketid,name,state}))(this);
-      return cleared
+      const clearedshort = (({socketid,name,state}) => ({socketid,name,state}))(this);
+      return clearedshort
     }
 }

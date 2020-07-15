@@ -4,6 +4,7 @@ import { generatetoken } from './helpers'
 import Game from './classes/game'
 import Player from './classes/player'
 import {playerEvent} from './playerEvent'
+import * as cmd from '../helpers'
 
 const logerror = debug('tetris:main_error')
   , loginfo = debug('tetris:main_info')
@@ -53,6 +54,13 @@ const initEngine = io => {
   io.on('connection', function(socket){
     let socketid = socket.id
     loginfo("Socket connected: " + socketid)
+
+    socket.on('action', (action) => {
+      if(action.type === 'server/ping'){
+        socket.emit('action', {type: 'pong'})
+      }
+    })
+
     socket.on('register', (register) => {
 
       if (!register.player_name || register.player_name.length == 0 || !register.room || register.room.length == 0)
@@ -65,21 +73,23 @@ const initEngine = io => {
 
       let roomName = register.room
       if (!mapGame[roomName]) {
-        let curentroom = new Game(token,newplayer)
+        let curentroom = new Game(token,newplayer,io,roomName)
         mapGame[roomName] = curentroom
         loginfo("creat the room " + roomName)
       }
       else
           mapGame[roomName].addplayer(token,newplayer)
       console.log(Object.keys(mapGame[roomName].players))
-      socket.on(`room#${roomName}`, (action) => playerEvent(io, socket, action, mapGame[roomName], roomName, token))
+      socket.on(`room#${roomName}`, (action) => playerEvent(io, socket.id, action, mapGame[roomName], roomName, token))
 
       socket.on('disconnect', ()=> {
+        mapGame[roomName].emit(cmd.PLAYER_LEFT,mapGame[roomName].data())
         loginfo(register.player_name, "ragequit", token)
         if (mapGame[roomName].removeplayer(token))
           delete mapGame[roomName]
       })
       console.log(token)
+      mapGame[roomName].emit(cmd.PLAYER_JOIN,mapGame[roomName].data())
       socket.emit('register', { token: token, nb_player: null } )
     })
   })
