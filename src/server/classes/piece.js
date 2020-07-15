@@ -8,7 +8,7 @@ export default class Piece {
         this.rotation = rotation
         this.positiony = positiony
         this.positionx = 0;
-        if (positionx)
+        if (positionx != null)
             this.positionx = positionx
         else {
             const pieceform = pieces[this.form][this.rotation]
