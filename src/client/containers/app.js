@@ -2,11 +2,14 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { register } from '../actions/server'
 import * as cmd from '../../helpers'
+import Game from '../components/game'
+import io from 'socket.io-client'
+import params from '../../../params'
 
 console.log(window.location)
 
-const params = window.location.hash
-console.log(params)
+const url = window.location.hash
+console.log(url)
 
 const mapKey = {
   ArrowRight: cmd.RIGHT,
@@ -17,19 +20,19 @@ const mapKey = {
   Escape: cmd.PAUSE
 }
 
+let socket = io(params.server.url)
 let token = null
 let nb_player = null
-let player_name = params.slice(params.indexOf('[')+1, -1)
-let room_name = params.substr(1, params.indexOf('[')-1)
+let player_name = url.slice(url.indexOf('[')+1, -1)
+let room_name = url.substr(1, url.indexOf('[')-1)
+let player_state = null
+let game_state = null
 
-const App = ({socket}) => {
-  if (!socket)
-    return (
-      <div></div>
-    )
+const App = () => {
   console.log('socket:',socket)
   return (
     <div>
+      <h2>Welcome to Red Tetris</h2>
       <button onClick={() => {
         console.log("token nb_player:", token, nb_player)
       }}>token player</button>
@@ -40,13 +43,12 @@ const App = ({socket}) => {
       <textarea id='tmpScreen' rows="30" cols="50"></textarea>
       <textarea id='tmpScreen2' rows="30" cols="50"></textarea>
       <script> {maincode(socket)}</script>
+      <Game player_name={player_name} room_name={room_name}/>
     </div>
   )
 }
 
 function maincode(socket){
-  console.log("player name:", player_name)
-  console.log("room name:", room_name)
   socket.emit('register', register(room_name, player_name))
   console.log("mainSocket socket:", socket)
   socket.on('register', (msg) => ({token, nb_player} = msg))
@@ -69,11 +71,6 @@ function maincode(socket){
   })
 }
 
-const mapStateToProps = (state) => {
-  return {
-    socket: state.socket_reducer.socket,
-  }
-}
-export default connect(mapStateToProps, null)(App)
+export default App
 
 
