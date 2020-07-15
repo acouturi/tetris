@@ -20,6 +20,7 @@ export default class Game {
     this.name = name
   }
 
+    //tested full
   init() {
     this.badLines = 0
     this.playerAlive = Object.keys(this.players).length == 1 ? 2 : Object.keys(this.players).length
@@ -32,10 +33,12 @@ export default class Game {
     this.timeleft = 5
   }
 
+    //tested full
   addNewPiece() {
     this.pieces.push(new Piece())
   }
 
+    //tested full
   getPieces(index) {
     while (index + PIECES_BUFFER > this.pieces.length){
       if (this.timespeed > MIN_SPEED)
@@ -46,6 +49,7 @@ export default class Game {
     return this.pieces[index]
   }
 
+    //tested full
   gameOver() {
     clearInterval(this.internalClockEvent)
     this.state = cmd.GAME_OVER
@@ -53,6 +57,7 @@ export default class Game {
   }
 
   /////// unused
+    //tested full
   restart() {
     this.state = cmd.WAIT_PLAYERS
     let lsttoken = Object.keys(this.players)
@@ -63,6 +68,7 @@ export default class Game {
     this.pieces = []
   }
 
+    //tested full
   killplayer(token) {
     this.players[token].state = cmd.PLAYER_DEAD
     this.emit(cmd.PLAYER_GONE,this.data())
@@ -70,10 +76,12 @@ export default class Game {
     return this.playerAlive == 1
   }
 
+    //tested full
   addplayer(token, player) {
     this.players[token] = player
   }
 
+    //tested full
   removeplayer(token) {
     delete this.players[token]
     if (this.state == cmd.WAIT_PLAYERS || this.state == cmd.GAME_OVER)
@@ -88,8 +96,13 @@ export default class Game {
     return 0
   }
 
+    //tested full
   data() {
-    const cleared = (({state,name,playerAlive,timespeed,pieces}) => ({state,name,playerAlive,timespeed,pieces}))(this);
+    let cleared 
+    if (this.state == cmd.WAIT_PLAYERS)
+      cleared = (({state,name}) => ({state,name}))(this);
+    else
+      cleared = (({state,name,playerAlive,timespeed,pieces}) => ({state,name,playerAlive,timespeed,pieces}))(this);
     let lstplayer = []
     Object.keys(this.players).forEach(token => {
       lstplayer.push(this.players[token].data())
@@ -97,6 +110,7 @@ export default class Game {
     return cleared
   }
 
+    //tested full
   emit(cmd,data) {
     if (this.testing)
       return

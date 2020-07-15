@@ -1,6 +1,7 @@
 import debug from 'debug'
 import * as cmd from '../helpers'
 import {gameEvent,gameClock} from './gameEvent'
+import Player from './classes/player'
 
 const logerror = debug('tetris:player_error')
   , loginfo = debug('tetris:player_info')
@@ -26,14 +27,20 @@ export function playerEvent(io, socketid, action, game, roomName, token) {
         break;
       case cmd.ROTATE:
         if (game.state == cmd.IN_GAME && player.state == cmd.PLAYER_ALIVE){
-          player.rotatePiece()
-          game.emit(cmd.REFRESH_PLAYER,player.data())
+          let ret = player.rotatePiece()
+          if(ret){
+            game.emit(cmd.REFRESH_PLAYER,player.data())
+            break;
+          }
+          if (ret == false) {
+            game.emit(cmd.REFRESH_PLAYER,player.data())
+            break;
+          }
         }
-        break;
       case cmd.DOWN:
       case cmd.FALL:    
         if (game.state == cmd.IN_GAME && player.state == cmd.PLAYER_ALIVE) {
-          let ok = action.command == cmd.DOWN ? player.shiftDown() : player.shiftFall()
+          let ok = action.command == cmd.FALL ? player.shiftFall() : player.shiftDown()
           if (!ok) {
             ok = player.newPiece(game.getPieces(player.index),game.getPieces(player.index + 1))
             if (ok[1])

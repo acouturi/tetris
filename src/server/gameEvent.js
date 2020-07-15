@@ -60,31 +60,31 @@ export function gameEvent(io, game, command, roomName, data= null) {
 }
   
 export function gameClock(io, game, roomName, time) {
-    loginfo('tic', game.timespeed, game.watchdog)
-    return setTimeout(() => {
-      if (game.watchdog-- == 0)
-        return
-      if (game.state == cmd.IN_GAME) {
-        let tokens = Object.keys(game.players)
-        for (let index = 0; index < tokens.length; index++) {
-          const player = game.players[tokens[index]];
-          if (player.state == cmd.PLAYER_ALIVE) {
-            loginfo('tac',player.name,player.state)
-            if (!player.shiftDown()) {
-              let ok = player.newPiece(game.getPieces(player.index),game.getPieces(player.index + 1))
-              if (ok[1])
-                gameEvent(null, game, cmd.ADD_LINE, null, ok[1])
-              if (!ok[0]) {
-                loginfo(player.name, "is dead", tokens[index])
-                if(game.killplayer(tokens[index])) {
-                  gameEvent(io, game, cmd.END_GAME, roomName)
-                }
+  loginfo('tic', game.timespeed, game.watchdog)
+  return setTimeout(() => {
+    if (game.watchdog-- == 0)
+      return
+    if (game.state == cmd.IN_GAME) {
+      let tokens = Object.keys(game.players)
+      for (let index = 0; index < tokens.length; index++) {
+        const player = game.players[tokens[index]];
+        if (player.state == cmd.PLAYER_ALIVE) {
+          loginfo('tac',player.name,player.state)
+          if (!player.shiftDown()) {
+            let ok = player.newPiece(game.getPieces(player.index),game.getPieces(player.index + 1))
+            if (ok[1])
+              gameEvent(null, game, cmd.ADD_LINE, null, ok[1])
+            if (!ok[0]) {
+              loginfo(player.name, "is dead", tokens[index])
+              if(game.killplayer(tokens[index])) {
+                gameEvent(io, game, cmd.END_GAME, roomName)
               }
             }
-            game.emit(cmd.REFRESH_PLAYER,player.data())
           }
-        } 
-        game.internalClockEvent = gameClock(io, game, roomName, game.timespeed)
-      }
-    }, time);
-  }
+          game.emit(cmd.REFRESH_PLAYER,player.data())
+        }
+      } 
+      game.internalClockEvent = gameClock(io, game, roomName, game.timespeed)
+    }
+  }, time);
+}

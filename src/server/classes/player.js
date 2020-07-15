@@ -100,22 +100,34 @@ export default class Player {
     rotatePiece() {
       this.currentPiece.rotate()
       let ok = this.refreshScreen()
-      let tmp = ok
-      while (!ok) {
-        if(this.currentPiece.positiony < 0)
+      let ret = true
+      let histox = this.currentPiece.positionx
+      let histoy = this.currentPiece.positiony
+      let i = 0;
+
+      if (!ok) {
+        ret = ok
+        while(this.currentPiece.positiony < 0)
           this.currentPiece.positiony++
-        if(this.currentPiece.positionx < 0)
+        while(this.currentPiece.positionx < 0)
           this.currentPiece.positionx++
-        if(this.currentPiece.positiony + pieces[this.currentPiece.form][0].length > this.board[0].length)
+        while(this.currentPiece.positiony + pieces[this.currentPiece.form][0].length > this.board[0].length)
           this.currentPiece.positiony--
-        ok = this.refreshScreen()
-        tmp = ok
-        if (this.currentPiece.positionx > 0 && this.currentPiece.positiony > 0 && (this.currentPiece.positiony + pieces[this.currentPiece.form][0].length + 1) < this.board[0].length){
-          ok = true
-          console.error('usless 1')
+        while(this.currentPiece.positionx + pieces[this.currentPiece.form][0].length > this.board.length){
+          this.currentPiece.positionx--
+          ret = null
         }
+        ok = this.refreshScreen()
       }
-      return tmp
+      if (!ok) {
+        this.currentPiece.rotate()
+        this.currentPiece.rotate()
+        this.currentPiece.rotate()
+        this.currentPiece.positionx = histox
+        this.currentPiece.positiony = histoy
+        ret = false
+      }
+      return ret
     }
 
     //tested full
@@ -172,7 +184,7 @@ export default class Player {
       return [ok, removeline]
     }
 
-    //tested
+    //tested full
     data() {
       if (this.screen){
         const cleared = (({ socketid,name,state,screen,score }) => ({ socketid,name,state,screen,score }))(this);
