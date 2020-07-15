@@ -1,22 +1,8 @@
 import * as cmd from '../../helpers'
 
-// key.code
-const mapKey = {
-  ArrowRight: cmd.RIGHT,
-  ArrowLeft: cmd.LEFT,
-  ArrowUp: cmd.ROTATE,
-  ArrowDown: cmd.DOWN,
-  Space: cmd.FALL,
-  Escape: cmd.PAUSE
-}
-
 export const right = (event) => {
     return {
-<<<<<<< HEAD
-        type: mapKey[event.code],
-=======
         type: 'ArrowRight',
->>>>>>> refactoring
         event: event
     }
 }
