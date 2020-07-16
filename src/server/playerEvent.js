@@ -1,6 +1,6 @@
 import debug from 'debug'
 import * as cmd from '../helpers'
-import {gameEvent,gameClock} from './gameEvent'
+import {gameEvent,gameClock,testnewpiece} from './gameEvent'
 import Player from './classes/player'
 
 const logerror = debug('tetris:player_error')
@@ -41,16 +41,8 @@ export function playerEvent(action, game, token) {
       case cmd.FALL:    
         if (game.state == cmd.IN_GAME && player.state == cmd.PLAYER_ALIVE) {
           let ok = action.command == cmd.FALL ? player.shiftFall() : player.shiftDown()
-          if (!ok) {
-            ok = player.newPiece(game.getPieces(player.index),game.getPieces(player.index + 1))
-            if (ok[1])
-                gameEvent(game, cmd.ADD_LINE, ok[1])
-            if (!ok[0]) {
-              loginfo(player.name, "is dead", token)
-              if(game.killplayer(token))
-                gameEvent(game, cmd.END_GAME)
-            }
-          }
+          if (!ok)
+            testnewpiece(game,token)
           game.emit(cmd.REFRESH_PLAYER,player.data())
         }
         break;
@@ -60,7 +52,7 @@ export function playerEvent(action, game, token) {
             game.emit(cmd.END_PAUSE,null)
 
             game.state = cmd.IN_GAME
-            game.internalClockEvent = gameClock(game, game.timespeed)
+            game.internalClockEvent = gameClock(game)
           }
           else if (game.state == cmd.IN_GAME) {
             game.emit(cmd.START_PAUSE,null)
