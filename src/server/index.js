@@ -72,24 +72,25 @@ const initEngine = io => {
       let token = generatetoken()
 
       let roomName = register.room
-      if (!mapGame[roomName]) {
+      let thisroom = mapGame[roomName]
+      if (!thisroom) {
         let curentroom = new Game(token,newplayer,io,roomName)
-        mapGame[roomName] = curentroom
+        thisroom = curentroom
         loginfo("creat the room " + roomName)
       }
       else
-          mapGame[roomName].addplayer(token,newplayer)
-      console.log(Object.keys(mapGame[roomName].players))
-      socket.on(`room#${roomName}`, (action) => playerEvent(io, socket.id, action, mapGame[roomName], roomName, token))
+          thisroom.addplayer(token,newplayer)
+      console.log(Object.keys(thisroom.players))
+      socket.on(`room#${roomName}`, (action) => playerEvent(action, thisroom, token))
 
       socket.on('disconnect', ()=> {
-        mapGame[roomName].emit(cmd.PLAYER_LEFT,mapGame[roomName].data())
+        thisroom.emit(cmd.PLAYER_LEFT,thisroom.data())
         loginfo(register.player_name, "ragequit", token)
-        if (mapGame[roomName].removeplayer(token))
+        if (thisroom.removeplayer(token))
           delete mapGame[roomName]
       })
       console.log(token)
-      mapGame[roomName].emit(cmd.PLAYER_JOIN,mapGame[roomName].data())
+      thisroom.emit(cmd.PLAYER_JOIN,thisroom.data())
       socket.emit('register', { token: token, nb_player: null } )
     })
   })

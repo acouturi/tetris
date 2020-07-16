@@ -1,7 +1,7 @@
 import chai, { expect } from "chai"
 import Player from '../src/server/classes/player'
 import Piece from '../src/server/classes/piece'
-import * as help from '../src/server/helpers/index'
+import * as help from '../src/helpers/index'
 import _ from 'lodash'
 
 chai.should()
