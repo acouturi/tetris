@@ -35,7 +35,7 @@ export function gameEvent(game, command, data = null) {
         lstplayer.push(game.players[token].data())
       });
       game.emit(cmd.GAMESTART,game.lstplayer)
-      game.internalClockEvent = gameClock(game, game.timespeed)
+      game.internalClockEvent = gameClock(game)
       break;
     case cmd.END_GAME:
       game.gameOver()
@@ -60,10 +60,8 @@ export function gameEvent(game, command, data = null) {
       break;
   }
 }
-  
-export function gameClock(game, time) {
-  loginfo('tic', game.timespeed, game.watchdog)
-  return setTimeout(() => {
+
+function runningfonct(game) {
     if (game.watchdog-- == 0)
       return
     if (game.state == cmd.IN_GAME) {
@@ -86,7 +84,13 @@ export function gameClock(game, time) {
           game.emit(cmd.REFRESH_PLAYER,player.data())
         }
       } 
-      game.internalClockEvent = gameClock(game, game.timespeed)
+      game.internalClockEvent = gameClock(game)
     }
-  }, time);
+}
+  
+export function gameClock(game) {
+  loginfo('tic', game.timespeed, game.watchdog)
+  return setTimeout(() => {
+    runningfonct(game)
+  }, game.timespeed);
 }

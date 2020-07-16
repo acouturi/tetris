@@ -60,7 +60,7 @@ export function playerEvent(action, game, token) {
             game.emit(cmd.END_PAUSE,null)
 
             game.state = cmd.IN_GAME
-            game.internalClockEvent = gameClock(game, game.timespeed)
+            game.internalClockEvent = gameClock(game)
           }
           else if (game.state == cmd.IN_GAME) {
             game.emit(cmd.START_PAUSE,null)

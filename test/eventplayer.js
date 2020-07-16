@@ -6,10 +6,9 @@ import Game from '../src/server/classes/game'
 import * as cmd from '../src/helpers/index'
 import _ from 'lodash'
 
-
 chai.should()
 
-describe('creatpiece', () => {
+describe('all event for player', () => {
     it('cmd.RIGHT', () => {
         let fakeplayer = new Player("toto", "123")
         let fakegame = new Game("123", fakeplayer,null,'room')
