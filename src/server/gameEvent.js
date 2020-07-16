@@ -7,7 +7,7 @@ const logerror = debug('tetris:game_error')
   logerror('test')
   loginfo('test')
 
-export function gameEvent(io, game, command, roomName, data= null) {
+export function gameEvent(game, command, data = null) {
   switch (command) {
     case cmd.START_TIMER:
       let allPlayers = Object.values(game.players)
@@ -22,18 +22,20 @@ export function gameEvent(io, game, command, roomName, data= null) {
           game.timeleft--
           if (game.timeleft < 0){
             clearInterval(waitTimer)
-            gameEvent(io, game, cmd.START_GAME, roomName)
+            if (game.state = cmd.INIT_GAME)
+              gameEvent(game, cmd.START_GAME)
           }
       },100)   //////// mettre 1000
+      game.internalClockEvent = waitTimer
       break;
     case cmd.START_GAME:
       game.state = cmd.IN_GAME
-      let lstplayer= []
+      let lstplayer = []
       Object.keys(game.players).forEach(token => {
         lstplayer.push(game.players[token].data())
       });
       game.emit(cmd.GAMESTART,game.lstplayer)
-      game.internalClockEvent = gameClock(io, game, roomName, game.timespeed)
+      game.internalClockEvent = gameClock(game, game.timespeed)
       break;
     case cmd.END_GAME:
       game.gameOver()
@@ -59,7 +61,7 @@ export function gameEvent(io, game, command, roomName, data= null) {
   }
 }
   
-export function gameClock(io, game, roomName, time) {
+export function gameClock(game, time) {
   loginfo('tic', game.timespeed, game.watchdog)
   return setTimeout(() => {
     if (game.watchdog-- == 0)
@@ -73,18 +75,18 @@ export function gameClock(io, game, roomName, time) {
           if (!player.shiftDown()) {
             let ok = player.newPiece(game.getPieces(player.index),game.getPieces(player.index + 1))
             if (ok[1])
-              gameEvent(null, game, cmd.ADD_LINE, null, ok[1])
+              gameEvent(game, cmd.ADD_LINE, ok[1])
             if (!ok[0]) {
               loginfo(player.name, "is dead", tokens[index])
               if(game.killplayer(tokens[index])) {
-                gameEvent(io, game, cmd.END_GAME, roomName)
+                gameEvent(game, cmd.END_GAME)
               }
             }
           }
           game.emit(cmd.REFRESH_PLAYER,player.data())
         }
       } 
-      game.internalClockEvent = gameClock(io, game, roomName, game.timespeed)
+      game.internalClockEvent = gameClock(game, game.timespeed)
     }
   }, time);
 }
