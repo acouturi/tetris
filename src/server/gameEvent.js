@@ -39,6 +39,17 @@ export function gameEvent(game, command, data = null) {
         lstplayer.push(game.players[token].data())
       });
       game.emit(cmd.GAMESTART,game.lstplayer)
+
+      let tokens = Object.keys(game.players)
+      for (let index = 0; index < tokens.length; index++) {
+        let player = game.players[tokens[index]];
+        if (player.state == cmd.PLAYER_ALIVE) {
+          if(player.bot != 0) {
+            player.botmove()
+          }
+        }
+      } 
+
       game.internalClockEvent = gameClock(game)
       break;
     case cmd.END_GAME:
@@ -74,8 +85,12 @@ export function runningfonct(game) {
         let player = game.players[tokens[index]];
         if (player.state == cmd.PLAYER_ALIVE) {
           loginfo('tac',player.name,player.state)
-          if (!player.shiftDown())
+          if (!player.shiftDown()){
             testnewpiece(game,tokens[index])
+            if(player.bot != 0) {
+              player.botmove()
+            }
+          }
           game.emit(cmd.REFRESH_PLAYER,player.data())
         }
       } 
