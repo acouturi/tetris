@@ -65,6 +65,7 @@ export function playerEvent(action, game, token) {
       case cmd.START:
         if (game.state == cmd.WAIT_PLAYERS || game.state == cmd.GAME_OVER) {
           if (Object.keys(game.players)[0] == token) {
+            game.addbot()
             game.state = cmd.INIT_GAME
             loginfo("initialisation of the room " + game.name)
             game.init()

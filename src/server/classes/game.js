@@ -1,10 +1,11 @@
 import _ from 'lodash'
 import Piece from './piece'
 import * as cmd from '../../helpers'
+import Player from './player'
 
 const PIECES_BUFFER = 10
 
-const DEFAULT_SPEED = 2000
+const DEFAULT_SPEED = 500//2000
 const MIN_SPEED = 100
 const STEP_SPEED = 10
 const WATCH_DOG = 40
@@ -79,6 +80,10 @@ export default class Game {
     //tested full
   addplayer(token, player) {
     this.players[token] = player
+  }
+
+  addbot() {
+    // this.players['bot'] = new Player('autobot', null, 1)
   }
 
     //tested full

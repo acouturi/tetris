@@ -75,7 +75,8 @@ const initEngine = io => {
       let thisroom = mapGame[roomName]
       if (!thisroom) {
         let curentroom = new Game(token,newplayer,io,roomName)
-        thisroom = curentroom
+        mapGame[roomName] = curentroom
+        thisroom = mapGame[roomName]
         loginfo("creat the room " + roomName)
       }
       else
