@@ -37,19 +37,6 @@ const initApp = (app, params, cb) => {
 
 let mapGame = {}
 
-var reponsetest= {
-   "name":"toto",
-  "socketid":"FQKOxEitv2_f6__YAAAA",
-  "index":0,
-  "board":[[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
-  "currentPiece":{
-    "form":2,
-    "rotation":2,
-    "positionx": 5,
-    "positiony": 0,
-    "color":318.7959148351146}
-}
-
 const initEngine = io => {
   io.on('connection', function(socket){
     let socketid = socket.id
@@ -80,19 +67,21 @@ const initEngine = io => {
         loginfo("creat the room " + roomName)
       }
       else
-          thisroom.addplayer(token,newplayer)
+        thisroom.addplayer(token,newplayer)
       console.log(Object.keys(thisroom.players))
       socket.on(`room#${roomName}`, (action) => playerEvent(action, thisroom, token))
 
       socket.on('disconnect', ()=> {
         thisroom.emit(cmd.PLAYER_LEFT,thisroom.data())
         loginfo(register.player_name, "ragequit", token)
+        mapGame[roomName].info()
         if (thisroom.removeplayer(token))
           delete mapGame[roomName]
       })
       console.log(token)
       thisroom.emit(cmd.PLAYER_JOIN,thisroom.data())
-      socket.emit('register', { token: token, nb_player: null } )
+      mapGame[roomName].info()
+      socket.emit('register', { token: token} )
     })
   })
 }

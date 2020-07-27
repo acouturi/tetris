@@ -1,6 +1,8 @@
 import _ from 'lodash'
 import * as cmd from '../../helpers'
 import {pieces} from '../helpers/pieces'
+// import Pieces from './pieces'
+import Piece from './piece'
 
 export default class Player {
   constructor(name, socketid, bot = 0) {
@@ -175,8 +177,8 @@ export default class Player {
     let removeline = this.removeline()
     this.waitLines -= removeline
 
-    if (this.addbadline())
-      return [false, removeline]
+    // if (this.addbadline())
+      // return [false, removeline]
 
     this.currentPiece = Object.assign( Object.create( Object.getPrototypeOf(newpiece)), newpiece)
     this.nextPiece =JSON.parse(JSON.stringify(nextPiece))
@@ -187,7 +189,7 @@ export default class Player {
   //tested full
   data() {
     if (this.screen){
-      const cleared = (({ socketid,name,state,screen,score }) => ({ socketid,name,state,screen,score }))(this);
+      const cleared = (({ socketid,name,state,screen,score,bot }) => ({ socketid,name,state,screen,score,bot }))(this);
       cleared.nextPiece = pieces[this.nextPiece.form][this.nextPiece.rotation]
       return cleared
     }
@@ -221,43 +223,75 @@ export default class Player {
     for (let x = 0; x < virtualboard.length; x++) {
       for (let y = 0; y < virtualboard[x].length; y++) {
         if (virtualboard[x][y] != -1) {
-          gridvalue += (virtualboard.length - x) * 1000 + y
+          gridvalue += (virtualboard.length - x) * 200 + y//(5 - Math.abs(y - 5))
         }
       }
     }
+    for (let y = 0; y < virtualboard[0].length; y++) {
+      let high = 0
+      let lock = false
+      for (let x = 0; x < virtualboard.length; x++) {
+        if (virtualboard[x][y] == -1) {
+          if (!lock)
+            high = x
+          else {
+            gridvalue += (x) * 100
+          }
+        }
+        else {
+          lock = true
+        }
+      }
+    }
+    let removed = 0
+    for (let x = 0; x < virtualboard.length; x++) {
+      testline: for (let y = 0; y < virtualboard[x].length; y++) {
+        if (virtualboard[x][y] == -1) {
+          break testline
+        }
+        else if (y == virtualboard[x].length){
+          // console.log('*********************ligne')
+          removed += 1
+        }
+      }
+    }
+    removed = removed == 0 ? 0 : removed - 0.5
+    gridvalue -= removed * 5000
     return gridvalue
   }
 
-  botmove() {
-    let mainvirtualpiece = Object.assign( Object.create( Object.getPrototypeOf(this.currentPiece)), this.currentPiece)
+  botplace(testpiece,board,loop = false) {
+    let mainvirtualpiece = Object.assign( Object.create( Object.getPrototypeOf(testpiece)), testpiece)
     let nbrotmax = pieces[mainvirtualpiece.form].length
     let besty = 0;
     let bestrot = 0;
     let bestscore = 99999999;
 
     for (let rot = 0; rot < nbrotmax; rot++) {
-      let rotvirtualpiece = Object.assign( Object.create( Object.getPrototypeOf(mainvirtualpiece)), mainvirtualpiece)
-      rotvirtualpiece.rotation = rot
+      // console.log('++++++++++++++++++++',rot)
+      let rotvirtualpiece = new Piece(mainvirtualpiece.form,rot) //Object.assign( Object.create( Object.getPrototypeOf(mainvirtualpiece)), mainvirtualpiece)
 
       const thisPiece = pieces[rotvirtualpiece.form][rotvirtualpiece.rotation]
       
-      for (let y = -thisPiece.length; y < this.board[0].length; y++) {
+      for (let y = -thisPiece.length; y < board[0].length; y++) {
         let virtualpiece = Object.assign( Object.create( Object.getPrototypeOf(rotvirtualpiece)), rotvirtualpiece)
         virtualpiece.positiony = y
-        let tmpboard = JSON.parse(JSON.stringify(this.board))
+        let tmpboard = JSON.parse(JSON.stringify(board))
         if(this.virtualScreen(tmpboard,virtualpiece)) {
-
           virtualpiece.positionx++
-          while (this.virtualScreen(tmpboard = JSON.parse(JSON.stringify(this.board)),virtualpiece))
+          while (this.virtualScreen(tmpboard = JSON.parse(JSON.stringify(board)),virtualpiece))
             virtualpiece.positionx++
           virtualpiece.positionx--
-          this.virtualScreen(tmpboard = JSON.parse(JSON.stringify(this.board)),virtualpiece)
+          this.virtualScreen(tmpboard = JSON.parse(JSON.stringify(board)),virtualpiece)
 
-          this.virtualScreen(JSON.parse(JSON.stringify(this.board)),virtualpiece)
+          // console.log(this.bot)
+          // console.log(JSON.stringify(tmpboard).replace(/],/g,'\n').replace(/\[/g,'').replace(']]',''))
+
           let result = this.gridcalculator(virtualpiece)
-          console.log(JSON.stringify(tmpboard).replace(/],/g,'\n').replace(/\[/g,'').replace(']]',''))
-          console.log(virtualpiece.positiony,virtualpiece.positionx)
-          console.log(y,result)
+          if (loop) {
+            result += this.botplace(this.nextPiece, tmpboard).bestscore * 0.9
+          }
+          
           if (result < bestscore) {
             bestscore = result
             besty = y
@@ -266,8 +300,33 @@ export default class Player {
         }
       }
     }
-    this.currentPiece.positiony = besty
-    this.currentPiece.rotation = bestrot
-    console.log(besty)
+    return {bestscore:bestscore,besty:besty,bestrot:bestrot}
+  }
+
+  botmove() {
+    if (this.state != cmd.PLAYER_ALIVE)
+      return
+    let tested = this.botplace(this.currentPiece, this.board, this.bot == 2) 
+
+    // this.currentPiece.rotation = bestrot
+    let torot = this.currentPiece.rotation > tested.bestrot ? tested.bestrot + 4 : tested.bestrot
+    for (let i = this.currentPiece.rotation; i < torot; i++) {
+      this.rotatePiece()
+    }
+    this.currentPiece.positiony = tested.besty
+    for (let i = this.currentPiece.rotation; i < torot; i++) {
+      this.rotatePiece()
+    }
+    this.currentPiece.positiony = tested.besty
+
+    // for (let i = 0; i < (+4-this.currentPiece.rotation)%4; i++) {
+    //   console.log('a')
+    // }
+
+
+    // console.log('++++++++++++++++++++')
+    // console.log(bestscore,mainvirtualpiece.rotation)
+    // console.log(besty,bestrot)
+    // console.log(this.currentPiece.positiony,this.currentPiece.rotation)
   }
 }

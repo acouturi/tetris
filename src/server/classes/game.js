@@ -5,7 +5,7 @@ import Player from './player'
 
 const PIECES_BUFFER = 10
 
-const DEFAULT_SPEED = 500//2000
+const DEFAULT_SPEED = 2000
 const MIN_SPEED = 100
 const STEP_SPEED = 10
 const WATCH_DOG = 40
@@ -63,6 +63,10 @@ export default class Game {
     this.state = cmd.WAIT_PLAYERS
     let lsttoken = Object.keys(this.players)
     for (let index = 0; index < lsttoken.length; index++) {
+      if (lsttoken[index] == 'bot')
+        this.removeplayer('bot')
+    }
+    for (let index = 0; index < lsttoken.length; index++) {
       const player = this.players[lsttoken[index]];
       player.restart()
     }
@@ -83,7 +87,8 @@ export default class Game {
   }
 
   addbot() {
-    // this.players['bot'] = new Player('autobot', null, 1)
+    this.players['bot'] = new Player('autobot', null, 1)
+    this.players['bot'].bot = 2
   }
 
     //tested full
@@ -116,9 +121,17 @@ export default class Game {
   }
 
     //tested full
-  emit(cmd,data) {
+  emit(command,data) {
     if (this.testing)
       return
-    this.io.emit(`room#${this.name}`,{command:cmd,data:data})
+    this.io.emit(`room#${this.name}`,{command:command,data:data})
+  }
+
+  info() {
+    let lstplayer = []
+    Object.keys(this.players).forEach(token => {
+      lstplayer.push(this.players[token].data())
+    });
+    this.emit(cmd.SERVERINFO,lstplayer)
   }
 }

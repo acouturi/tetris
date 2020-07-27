@@ -19,6 +19,7 @@ export let SERVER_STATE = 'SERVER_STATE'
 export let PLAYER_JOIN = 'PLAYER_JOIN'
 export let PLAYER_LEFT = 'PLAYER_LEFT'
 export let PLAYER_GONE = 'PLAYER_GONE'
+export let SERVERINFO = 'SERVERINFO'
 
 // INTERNAL COMMAND
 export let ADD_LINE = 'ADD_LINE'
