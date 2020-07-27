@@ -51,6 +51,7 @@ const App = () => {
 function maincode(socket){
   socket.emit('register', register(room_name, player_name))
   console.log("mainSocket socket:", socket)
+  // replace the null value of token and nb_player by the response of the server
   socket.on('register', (msg) => ({token, nb_player} = msg))
   socket.on(`room#${room_name}`, (msg) => {
     console.log(`[REPONSE] room#${room_name}`, msg)
