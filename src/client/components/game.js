@@ -1,3 +1,4 @@
+import { connect } from 'react-redux'
 import React from 'react'
 import PropTypes from 'prop-types'
 
@@ -18,6 +19,7 @@ function maincode(player_name, room_name){
   // Ecoute les key pressed et les envoies au back
   document.addEventListener('keyup', (key) => {
     console.log(`[GAME] room#${room_name}`, key)
+
   })
 }
 
