@@ -414,7 +414,6 @@ describe('all event for player', () => {
         playerEvent({command:cmd.FALL}, fakegame, '123')
         playerEvent({command:cmd.FALL}, fakegame, '123')
         playerEvent({command:cmd.FALL}, fakegame, '123')
-
         fakegame.state.should.equal(cmd.GAME_OVER)
         playerEvent({command:cmd.START}, fakegame, '321')
         fakegame.state.should.equal(cmd.GAME_OVER)

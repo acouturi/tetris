@@ -233,5 +233,70 @@ describe('creatplayer', () => {
         tmp.socketid.should.equal("123")
         tmp.score.should.equal(4)
     });
+
+    it('bot virtualScreen', () => {
+        let fakeplayer = new Player("toto", "123")
+        let fakepiece = new Piece(0,0,1,3,88)
+
+        fakeplayer.init(fakepiece,fakepiece)
+        let tmp = JSON.stringify(fakeplayer.screen)
+        // fakeplayer.shiftDown()
+        fakeplayer.currentPiece.positionx++
+        fakeplayer.virtualScreen(fakeplayer.screen,fakeplayer.currentPiece)
+        JSON.stringify(fakeplayer.screen).should.not.equal(tmp)
+        tmp = JSON.stringify(fakeplayer.screen)
+        fakeplayer.virtualScreen(fakeplayer.screen,fakeplayer.currentPiece)
+        JSON.stringify(fakeplayer.screen).should.equal(tmp)
+
+        fakepiece = new Piece(3,0,0,-3,88)
+        fakeplayer.init(fakepiece,fakepiece)
+        fakeplayer.virtualScreen(fakeplayer.screen,fakeplayer.currentPiece).should.equal(false)
+
+
+    });
+
+    it('bot gridcalculator', () => {
+        let fakeplayer = new Player("toto", "123")
+        let fakepiece = new Piece(0,0,1,3,88)
+
+        fakeplayer.init(fakepiece,fakepiece)
+        let tmp = fakeplayer.gridcalculator(fakeplayer.currentPiece)
+        fakeplayer.shiftDown()
+        let tmp2 = fakeplayer.gridcalculator(fakeplayer.currentPiece)
+        tmp2.should.most(tmp)
+        
+        tmp = fakeplayer.gridcalculator(fakeplayer.currentPiece)
+        fakeplayer.shiftLeft()
+        tmp2 = fakeplayer.gridcalculator(fakeplayer.currentPiece)
+        tmp2.should.most(tmp)
+
+        tmp = fakeplayer.gridcalculator(fakeplayer.currentPiece)
+        fakeplayer.shiftRight()
+        tmp2 = fakeplayer.gridcalculator(fakeplayer.currentPiece)
+        tmp2.should.least(tmp)
+
+        fakeplayer.board = _.map(new Array(19), () => _.map(new Array(10), () => {return -1} ))
+        fakeplayer.board.push([-1,-1,-1,-1,88,88,88,88,88,88])
+        fakeplayer.currentPiece.positiony = 0
+        fakeplayer.currentPiece.positionx = 18
+        tmp = fakeplayer.gridcalculator(fakeplayer.currentPiece)
+        fakeplayer.shiftDown()
+        tmp2 = fakeplayer.gridcalculator(fakeplayer.currentPiece)
+        tmp2.should.least(tmp)
+
+        fakeplayer.board = _.map(new Array(19), () => _.map(new Array(10), () => {return -1} ))
+        fakeplayer.board.push([-1,88,88,88,88,88,88,88,88,88])
+        fakeplayer.board.push([-1,88,88,88,88,88,88,88,88,88])
+        fakeplayer.board.push([-1,88,88,88,88,88,88,88,88,88])
+        fakeplayer.board.push([-1,88,88,88,88,88,88,88,88,88])
+
+        fakeplayer.currentPiece.rotation = 1
+        fakeplayer.currentPiece.positiony = 0
+        fakeplayer.currentPiece.positionx = 15
+        tmp = fakeplayer.gridcalculator(fakeplayer.currentPiece)
+        fakeplayer.shiftDown()
+        tmp2 = fakeplayer.gridcalculator(fakeplayer.currentPiece)
+        tmp2.should.least(tmp)
+    });
   });
   

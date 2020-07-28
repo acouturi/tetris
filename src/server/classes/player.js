@@ -5,7 +5,7 @@ import {pieces} from '../helpers/pieces'
 import Piece from './piece'
 
 export default class Player {
-  constructor(name, socketid, bot = 0) {
+  constructor(name, socketid, bot = 3) {
     this.name = name
     this.socketid = socketid
     this.state = cmd.PLAYER_NEW
@@ -177,8 +177,8 @@ export default class Player {
     let removeline = this.removeline()
     this.waitLines -= removeline
 
-    // if (this.addbadline())
-      // return [false, removeline]
+    if (this.addbadline())
+      return [false, removeline]
 
     this.currentPiece = Object.assign( Object.create( Object.getPrototypeOf(newpiece)), newpiece)
     this.nextPiece =JSON.parse(JSON.stringify(nextPiece))
@@ -249,14 +249,14 @@ export default class Player {
         if (virtualboard[x][y] == -1) {
           break testline
         }
-        else if (y == virtualboard[x].length){
+        else if (y == virtualboard[x].length -1 && this.bot == 3){
           // console.log('*********************ligne')
           removed += 1
         }
       }
     }
-    removed = removed == 0 ? 0 : removed - 0.5
-    gridvalue -= removed * 5000
+    removed = removed == 0 ? 0 : removed - 1.5
+    gridvalue -= removed * 2000////en fonction de x
     return gridvalue
   }
 
@@ -306,7 +306,7 @@ export default class Player {
   botmove() {
     if (this.state != cmd.PLAYER_ALIVE)
       return
-    let tested = this.botplace(this.currentPiece, this.board, this.bot == 2) 
+    let tested = this.botplace(this.currentPiece, this.board, this.bot > 1) 
 
     // this.currentPiece.rotation = bestrot
     let torot = this.currentPiece.rotation > tested.bestrot ? tested.bestrot + 4 : tested.bestrot

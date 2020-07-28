@@ -5,7 +5,7 @@ import Player from './player'
 
 const PIECES_BUFFER = 10
 
-const DEFAULT_SPEED = 2000
+const DEFAULT_SPEED = 200
 const MIN_SPEED = 100
 const STEP_SPEED = 10
 const WATCH_DOG = 40
@@ -60,16 +60,18 @@ export default class Game {
   /////// unused
     //tested full
   restart() {
-    this.state = cmd.WAIT_PLAYERS
     let lsttoken = Object.keys(this.players)
     for (let index = 0; index < lsttoken.length; index++) {
+      this.state = cmd.WAIT_PLAYERS
       if (lsttoken[index] == 'bot')
         this.removeplayer('bot')
+      else {
+        const player = this.players[lsttoken[index]];
+        player.restart()
+      }
     }
-    for (let index = 0; index < lsttoken.length; index++) {
-      const player = this.players[lsttoken[index]];
-      player.restart()
-    }
+    this.state = cmd.WAIT_PLAYERS
+    lsttoken = Object.keys(this.players)
     this.pieces = []
   }
 
@@ -86,16 +88,17 @@ export default class Game {
     this.players[token] = player
   }
 
-  addbot() {
-    this.players['bot'] = new Player('autobot', null, 1)
-    this.players['bot'].bot = 2
+    //tested full
+  addbot(difficult = 1) {
+    if (difficult == 1 || difficult == 2)
+      this.players['bot'] = new Player('autobot', null, difficult)
   }
 
     //tested full
   removeplayer(token) {
     delete this.players[token]
-    if (this.state == cmd.WAIT_PLAYERS || this.state == cmd.GAME_OVER)
-      return 0
+    // if (this.state == cmd.WAIT_PLAYERS || this.state == cmd.GAME_OVER)
+    //   return 0
     this.playerAlive--
     if (Object.keys(this.players).length < 1){
       clearInterval(this.internalClockEvent)
@@ -121,7 +124,7 @@ export default class Game {
   }
 
     //tested full
-  emit(command,data) {
+  emit(command,data = null) {
     if (this.testing)
       return
     this.io.emit(`room#${this.name}`,{command:command,data:data})
@@ -132,6 +135,8 @@ export default class Game {
     Object.keys(this.players).forEach(token => {
       lstplayer.push(this.players[token].data())
     });
-    this.emit(cmd.SERVERINFO,lstplayer)
+    let data = {lstplayer:lstplayer,game:this.data()}
+    this.emit(cmd.SERVERINFO,data)
+    return data
   }
 }
