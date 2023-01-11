@@ -20,7 +20,7 @@
     "redux": "^3.5.2",
     "redux-logger": "^2.6.1",
     "redux-thunk": "^2.0.1",
-    "socket.io": "^1.4.6"
+    "socket.io": "^4.5.4"
   },
   "devDependencies": {
     "babel-cli": "^6.7.7",
@@ -38,7 +38,7 @@
     "eslint": "^2.13.1",
     "eslint-plugin-babel": "^3.3.0",
     "eslint-plugin-react": "^5.2.2",
-    "mocha": "^2.4.5",
+    "mocha": "^10.2.0",
     "nyc": "^6.4.4",
     "webpack": "^1.13.0",
     "webpack-dev-middleware": "^1.6.1",
